@@ -1,11 +1,11 @@
 # Game-Jam2
 BUT3 Game-Jam
----
-## Develop branch
+
+## Develop branch
 A chaque tache -> créer une issue.  
 Chaque issue sera commit sur dev après verification.   
 
-### Branches annexes (serv,...)
+## Branches annexes (serv,...)
 même principe que sur la branche dev.  
 Pull request nécessaire pour merge sur dev.
 
