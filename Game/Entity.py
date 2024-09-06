@@ -3,13 +3,14 @@ import pygame
 class Entity : 
 
     def __init__(self , asset, x, y, direction) -> None:
-        self.asset = pygame.image.load(asset)
+        self.asset = pygame.image.load(asset).convert_alpha()
         self.skin = self.asset.subsurface(pygame.Rect(0,0,16,32))
         self.rect = self.skin.get_rect()
         self.rect.x = x
         self.rect.y = y
         self.direction = direction
         self.countSteps = 0
+        self.countFrame = 0
 
     def get_asset(self) -> pygame.Surface :
         return self.asset
@@ -31,6 +32,14 @@ class Entity :
         if self.direction == "right":
             self.skin = self.asset.subsurface(pygame.Rect(16*(self.countSteps % 4),0,16,32))
         elif self.direction == "left" : 
-            self.skin = pygame.transform.flip(self.asset.subsurface(pygame.Rect(16*(self.countSteps % 4),0,16,32))) 
-        self.countSteps += 1 
+            self.skin = pygame.transform.flip(self.asset.subsurface(pygame.Rect(16*(self.countSteps % 4),0,16,32)),180,0) 
+        self.countFrame += 1 
+        if (self.countFrame % 16 == 15) : self.countSteps +=1
         pygame.display.update()
+
+    def update(self, screen):
+        self.set_direction("left")
+        test = pygame.transform.scale(self.skin, (self.skin.get_width() * 5, self.skin.get_height()*5))
+        screen.blit(test, self.get_position())
+        self.animation_entity()
+        

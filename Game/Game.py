@@ -2,7 +2,7 @@ import pygame, os, pytmx
 from os import walk
 from pygame.locals import *
 from pytmx.util_pygame import load_pygame
-
+from Entity import Entity
 
 class Game:
 
@@ -14,6 +14,8 @@ class Game:
         
         self.currentMap = self.maps["Default"]
         self.draw_map(self.screen)
+
+        self.entity = Entity("Assets/Characters/BlowThemUp-player.png", 100, 100, 'right')
 
         self.running = True
         self.run()
@@ -52,11 +54,11 @@ class Game:
             if scale < 1:
                 scale = 1
             
-            windowXlimit=screen.get_width//2
-            windowYlimit=screen.get_height//2
+            windowXlimit=screen.get_width()//2
+            windowYlimit=screen.get_height() //2
 
-            posX = x * (self.currentMap.tilewidth*scale)
-            posY= y * (self.currentMap.tileheight*scale)
+            # posX = x * (self.currentMap.tilewidth*scale)
+            # posY= y * (self.currentMap.tileheight*scale)
             
             if isinstance(layer, pytmx.TiledTileLayer):
                 for x, y, tile in layer.tiles():
@@ -91,7 +93,15 @@ class Game:
             # Update the display
             pygame.display.update()
             clock.tick(60)
-        
+            #Update the game
+            self.update()
         pygame.quit()
+
+
+    def update(self)->None : 
+        self.screen.fill((0,0,0))
+        self.entity.update(self.screen)
+
+
 
 game = Game("Map/Arenas")
