@@ -37,9 +37,10 @@ class ServerState(Enum):
 
 class Server:
     def __init__(self, config: dict) -> None:
+        print(f"{config=}")
+
         self.udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.udp_socket.setblocking(False)
-        print(f"{config=}")
         self.udp_socket.bind(config.get("address"))
 
         self.state = ServerState.WAIT_CON
@@ -123,6 +124,7 @@ class Server:
 
         inc_packet = self.receive_all_packet()
 
+        # Change les actions reçu 
         for data, addr in inc_packet:
             action_dict = json.loads(data.decode("utf-8"))
             net_id = self.client_addr.get(addr)
