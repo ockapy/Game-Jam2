@@ -35,11 +35,13 @@ class Entity :
             self.skin = pygame.transform.flip(self.asset.subsurface(pygame.Rect(16*(self.countSteps % 4),0,16,32)),180,0) 
         self.countFrame += 1 
         if (self.countFrame % 16 == 15) : self.countSteps +=1
-        pygame.display.update()
 
-    def update(self, screen):
+    def update(self):
         self.set_direction("left")
+        self.animation_entity()
+    
+    def render(self, screen):
         test = pygame.transform.scale(self.skin, (self.skin.get_width() * 5, self.skin.get_height()*5))
         screen.blit(test, self.get_position())
-        self.animation_entity()
+
         
