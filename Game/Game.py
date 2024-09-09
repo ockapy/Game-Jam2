@@ -2,6 +2,7 @@ import pygame.display
 import pygame, os, pytmx
 import socket
 import json
+from TmxMap import Map
 from os import walk
 from pygame.locals import *
 from pytmx.util_pygame import load_pygame
@@ -17,7 +18,6 @@ class Game:
     def __init__(self,path) -> None:
         pygame.init()
 
-        self.colliders = []
         self.connection = Connection()
 
         self.server_address = ("127.0.0.1", 9999)
@@ -26,8 +26,7 @@ class Game:
         self.maps = self.initMaps(path)
         
         # Maybe change it
-        self.currentMap = self.maps["Default"]
-        self.draw_map(self.screen)
+        self.currentMap = self.maps[0]
         
         #self.entity = Entity("Assets/Characters/BlowThemUp-player.png", 100, 100, 'right')
 
@@ -37,12 +36,12 @@ class Game:
         
     def init_screen(self, width: int, height: int) -> pygame.Surface:
         pygame.display.init()
-        screen = pygame.display.set_mode((width, height),  pygame.RESIZABLE | pygame.SCALED)
+        screen = pygame.display.set_mode((width, height),  pygame.RESIZABLE)
         return screen
 
     def initMaps(self,path) -> dict:
     
-        maps = dict()
+        maps = list()
 
         directories = os.listdir(path)
 
@@ -52,9 +51,10 @@ class Game:
 
             for file in filenames:
                 if file.endswith(".tmx"):
-                    tmxData = load_pygame(path+"/"+directory+"/"+file)
-                    mapName = file.removesuffix(".tmx")
-                    maps[mapName] = tmxData
+                    
+                    tmxMap = Map(path+"/"+directory+"/"+file)
+                    tmxMap.name = file.removesuffix(".tmx")
+                    maps.append(tmxMap)
 
         return maps
     
@@ -102,7 +102,7 @@ class Game:
             self.connection.send_message(json.dumps(actions))
             
             #Update the game
-            self.update()
+            self.update('left')
 
             # Update the display
             self.render()
@@ -127,7 +127,7 @@ class Game:
 
     def render(self):
         self.screen.fill((0,0,0))
-        self.draw_map(self.screen)
+        self.maps[0].draw_map(self.screen)
         self.entity.render(self.screen)
 
 
