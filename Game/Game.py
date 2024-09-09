@@ -2,14 +2,18 @@ import pygame.display
 import pygame, os, pytmx
 import socket
 import json
+from TmxMap import Map
 from os import walk
 from pygame.locals import *
 from pytmx.util_pygame import load_pygame
 from Entity import Entity
-from Connection import Connection
+#from Connection import Connection
 
 
 class Game:
+
+    x = 1
+    y = 1
 
     def __init__(self,path) -> None:
         pygame.init()
@@ -18,65 +22,48 @@ class Game:
 
         self.server_address = ("127.0.0.1", 9999)
 
-        self.screen = self.init_screen(800,600)
+        self.screen = self.init_screen(1280,960)
         self.maps = self.initMaps(path)
         
-        self.currentMap = self.maps["Default"]
-        self.draw_map(self.screen,0,0)
-
-        self.entity = Entity("Assets/Characters/BlowThemUp-player.png", 100, 100, 'right')
+        # Maybe change it
+        self.currentMap = self.maps[0]
+        
+        #self.entity = Entity("Assets/Characters/BlowThemUp-player.png", 100, 100, 'right')
 
         self.running = True
         self.run()
         
         
-    @staticmethod
-    def init_screen(width: int, height: int) -> pygame.Surface:
+    def init_screen(self, width: int, height: int) -> pygame.Surface:
         pygame.display.init()
-        screen = pygame.display.set_mode((width, height),  pygame.RESIZABLE | pygame.SCALED)
+        screen = pygame.display.set_mode((width, height),  pygame.RESIZABLE)
         return screen
 
-    @staticmethod
-    def initMaps(path) -> dict:
+    def initMaps(self,path) -> list:
     
-        maps = dict()
+        maps = list()
 
-        dirs = os.listdir(path)
+        directories = os.listdir(path)
 
-        for dir in dirs:
+        for directory in directories:
 
-            filenames = next(walk(path+"/"+dir), (None, None, []))[2]
+            filenames = next(walk(path+"/"+directory), (None, None, []))[2]
 
             for file in filenames:
                 if file.endswith(".tmx"):
-                    tmxData = load_pygame(path+"/"+dir+"/"+file)
-                    mapName = file.removesuffix(".tmx")
-                    maps[mapName] = tmxData
+                    
+                    tmxMap = Map(path+"/"+directory+"/"+file)
+                    tmxMap.name = file.removesuffix(".tmx")
+                    maps.append(tmxMap)
 
         return maps
     
-    def draw_map(self,screen,xDiff,yDiff) -> None:       
+    def loadChar(self,path,x,y,direction):
+        self.entity = Entity(path,x,y,direction)
         
-        scaleX = 1 - (xDiff / 100)
-        scaleY = 1 - (yDiff / 100)
-
-        quart = ((screen.get_width()//4),(screen.get_height()//4))
-
-        for layer in self.currentMap.visible_layers:
-            scale = (screen.get_width() - screen.get_height())/100
-            if scale < 1:
-                scale = 1
-            
-            windowXlimit=screen.get_width() /2 - ((self.currentMap.width / 2 )* self.currentMap.tilewidth)
-            windowYlimit=screen.get_height() /2 - ((self.currentMap.height / 2 )* self.currentMap.tilewidth)
-            
-            if isinstance(layer, pytmx.TiledTileLayer):
-                for x, y, tile in layer.tiles():
-
-                    scaled_tile = pygame.transform.scale(tile,((self.currentMap.tilewidth*scale),(self.currentMap.tileheight*scale)))
-
-                    # screen.blit(scaled_tile, (quart[0] * (self.currentMap.tilewidth*scaleX), quart[1] * (self.currentMap.tileheight*scaleY)))
-                    screen.blit(tile, ((x * (self.currentMap.tilewidth))+windowXlimit, (y * (self.currentMap.tileheight))+windowYlimit))
+    
+    
+    
 
     
     def handle_packets(self, packets: list[bytes]) -> None:
@@ -96,26 +83,32 @@ class Game:
 
     def run(self):
         # Main game loop
-        self.w = 800
-        self.h = 600
         clock = pygame.time.Clock()
 
-        self.connection.send_connect(self.server_address)
+        self.loadChar("Assets/Characters/BlowThemUp-player.png",250,500,'right')
+
+#        self.connection.send_connect(self.server_address)
 
         while self.running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
-                if event.type == pygame.VIDEORESIZE:
-                    xDiff = self.w - event.dict["size"][0]
-                    yDiff = self.h - event.dict["size"][1]
+
+                            
+            if self.entity.rect.colliderect()
+        
+            # actions = self.get_played_action()
             
-            actions = self.get_played_action()
 
-            packets = self.connection.receive_packets()
-            self.handle_packets(packets)
+            
+    
 
-            self.connection.send_message(json.dumps(actions))
+#            packets = self.connection.receive_packets()
+#           self.handle_packets(packets)
+
+#            self.connection.send_message(json.dumps(keys))
+
+
             
             #Update the game
             self.update()
@@ -130,12 +123,16 @@ class Game:
 
 
     def update(self)->None : 
-        self.entity.update()
+        keys = pygame.key.get_pressed()
+        movement = keys[pygame.K_d] - keys[pygame.K_q]
+        if (movement != 0):
+            self.entity.add_x(movement)
 
     def render(self):
         self.screen.fill((0,0,0))
-        self.draw_map(self.screen, 0,0)
+        self.currentMap.draw_map(self.screen)
         self.entity.render(self.screen)
+
 
 
 
