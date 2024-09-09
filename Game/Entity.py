@@ -30,12 +30,12 @@ class Entity :
         self.rect.y = y
         self.animation_entity()
 
-    def set_position_x(self, x):
-        self.rect.x = x
+    def add_x(self, x):
+        self.rect.x += x
         self.animation_entity()
 
-    def set_position_y(self, y):
-        self.rect.y = y
+    def add_y(self, y):
+        self.rect.y += y
         self.animation_entity()
 
     def set_direction(self, direction) -> None : 
