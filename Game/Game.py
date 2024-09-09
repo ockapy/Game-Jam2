@@ -93,16 +93,25 @@ class Game:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
+
+                            
+            if self.entity.rect.colliderect()
+        
+            # actions = self.get_played_action()
             
-            actions = self.get_played_action()
+            keys = pygame.key.get_pressed()
+
+            self.entity.rect.x += (keys[pygame.K_d] - keys[pygame.K_q])*self.entity.velocity
+    
 
             packets = self.connection.receive_packets()
             self.handle_packets(packets)
 
-            self.connection.send_message(json.dumps(actions))
+            self.connection.send_message(json.dumps(keys))
+
+
             
             #Update the game
-            self.update('left')
 
             # Update the display
             self.render()
