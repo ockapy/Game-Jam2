@@ -299,7 +299,7 @@ class UI():
             case Menu.SETTINGS:
                 self.render_settings()
             case Menu.GAME:
-
+                    
                 pass
 
         pygame.display.flip()

@@ -7,13 +7,10 @@ from os import walk
 from pygame.locals import *
 from pytmx.util_pygame import load_pygame
 from Entity import Entity
-#from Connection import Connection
+from Connection import Connection
 
 
 class Game:
-
-    x = 1
-    y = 1
 
     def __init__(self,path) -> None:
         pygame.init()
@@ -95,7 +92,6 @@ class Game:
                     self.running = False
 
                             
-            if self.entity.rect.colliderect()
         
             # actions = self.get_played_action()
             

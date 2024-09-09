@@ -13,7 +13,7 @@ class ClientClass():
     def __init__(self) -> None:
         self.state= ClientState.OFFLINE
         self.ui=UI.UI(self)
-        self.connection = Connection
+        self.connection = Connection()
 
     def get_state(self):
         return self.state
@@ -29,7 +29,8 @@ class ClientClass():
                 case ClientState.OFFLINE:
                     pass
                 case ClientState.WAIT_CON:
-                    pass                
+                    packets = self.connection.receive_packets()
+                    self.connection.has_connected(packets)                
                 case ClientState.PLAYING:
                     pass
         
@@ -37,9 +38,13 @@ class ClientClass():
             self.ui.render()
 
     def connect_server(self,addr : str) ->None: 
-        ip,port =addr.split(":")
-        self.connection.send_connect((ip,int(port)))
-    
+        try:
+            ip,port =addr.split(":")
+            self.connection.send_connect((ip,int(port)))
+            self.state = ClientState.WAIT_CON
+        except:
+            pass
+
     def disconnect_server(self) ->None:
         if self.state!=ClientState.OFFLINE:
             pass
