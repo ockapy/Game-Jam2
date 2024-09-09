@@ -31,11 +31,11 @@ class Entity :
         self.animation_entity()
 
     def add_x(self, x):
-        self.rect.x += x
+        self.rect.x += x * self.velocity
         self.animation_entity()
 
     def add_y(self, y):
-        self.rect.y += y
+        self.rect.y += y * self.velocity
         self.animation_entity()
 
     def set_direction(self, direction) -> None : 
