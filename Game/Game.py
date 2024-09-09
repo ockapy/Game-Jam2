@@ -111,10 +111,6 @@ class Game:
 
 
             
-            if K_LEFT:
-                self.update('right')
-
-            #Update the game
 
             # Update the display
             self.render()
@@ -131,16 +127,9 @@ class Game:
         self.x += 1 * self.entity.get_velocity()
         
 
-
-    def update(self,direction)->None : 
-        self.entity.set_direction(direction)
-        self.entity.update((self.x, self.y))
-        self.x += 1 * self.entity.get_velocity()
-        
-
     def render(self):
         self.screen.fill((0,0,0))
-        self.maps[0].draw_map(self.screen)
+        self.draw_map(self.screen)
         self.entity.render(self.screen)
 
 
