@@ -6,20 +6,16 @@ from os import walk
 from pygame.locals import *
 from pytmx.util_pygame import load_pygame
 from Entity import Entity
+from Connection import Connection
 
-BUFFER_SIZE = 1024
-PING = b"ping"
-PONG = b"pong"
 
 class Game:
 
     def __init__(self,path) -> None:
         pygame.init()
 
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.socket.setblocking(False) 
+        self.connection = Connection()
 
-        self.is_connected = False
         self.server_address = ("127.0.0.1", 9999)
 
         self.screen = self.init_screen(800,600)
@@ -82,40 +78,17 @@ class Game:
                     # screen.blit(scaled_tile, (quart[0] * (self.currentMap.tilewidth*scaleX), quart[1] * (self.currentMap.tileheight*scaleY)))
                     screen.blit(tile, ((x * (self.currentMap.tilewidth))+windowXlimit, (y * (self.currentMap.tileheight))+windowYlimit))
 
-    def receive_packets(self) -> list[bytes]:
-        incoming_packets = []
-
-        while True:
-            try:
-                data, addr = self.socket.recvfrom(BUFFER_SIZE)
-                if addr == self.server_address:
-                    incoming_packets.append(data)
-            except:
-                break
-        return incoming_packets
     
     def handle_packets(self, packets: list[bytes]) -> None:
         decoded_packets = [p.decode("utf-8") for p in packets] 
-        if not self.is_connected and PING in packets:
-            self.is_connected = True
-            print("INFO: Client connected to ", self.server_address)
+        self.connection.has_connected(packets)
         
-        i = 0
-        while i < len(decoded_packets) and decoded_packets[i] == PONG.decode("utf-8"):
-            i += 1
-        
-        if i < len(decoded_packets):
-            self.update_entities(json.loads(decoded_packets[i]))
-    
-    def send_message(self, message: str) -> None:
-        self.socket.sendto(message.encode("utf-8"), self.server_address)
+        repl_packet = self.connection.get_last_replication_packets(decoded_packets)
+        if repl_packet is not None:
+            self.update_entities(repl_packet)
 
-    def update_entities(self, str_packet: dict):
-        print(f"{str_packet=}")
-
-    def connect(self, server_addr):
-        self.server_address = server_addr
-        self.socket.sendto(PING, server_addr)
+    def update_entities(self, replication_packet: dict):
+        print(f"{replication_packet=}")
     
     def get_played_action(self):
         keycodes = [k for k in range(len(pygame.key.get_pressed())) if pygame.key.get_pressed()[k]]
@@ -127,7 +100,7 @@ class Game:
         self.h = 600
         clock = pygame.time.Clock()
 
-        self.connect(self.server_address)
+        self.connection.send_connect(self.server_address)
 
         while self.running:
             for event in pygame.event.get():
@@ -139,10 +112,10 @@ class Game:
             
             actions = self.get_played_action()
 
-            packets = self.receive_packets()
+            packets = self.connection.receive_packets()
             self.handle_packets(packets)
 
-            self.send_message(json.dumps(actions))
+            self.connection.send_message(json.dumps(actions))
             
             #Update the game
             self.update()
