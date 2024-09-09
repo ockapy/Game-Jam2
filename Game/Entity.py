@@ -68,4 +68,6 @@ class Entity :
         elif(self.direction=='left'):
             self.rect.x -= self.velocity
         self.animation_entity()
+
+
         
