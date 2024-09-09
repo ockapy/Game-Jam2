@@ -7,7 +7,7 @@ from os import walk
 from pygame.locals import *
 from pytmx.util_pygame import load_pygame
 from Entity import Entity
-from Connection import Connection
+#from Connection import Connection
 
 
 class Game:
@@ -19,7 +19,7 @@ class Game:
         pygame.init()
 
         self.colliders = []
-        self.connection = Connection()
+        #self.connection = Connection()
 
         self.server_address = ("127.0.0.1", 9999)
 
@@ -40,7 +40,7 @@ class Game:
         screen = pygame.display.set_mode((width, height),  pygame.RESIZABLE)
         return screen
 
-    def initMaps(self,path) -> dict:
+    def initMaps(self,path) -> list:
     
         maps = list()
 
@@ -88,7 +88,7 @@ class Game:
 
         self.loadChar("Assets/Characters/BlowThemUp-player.png",250,500,'right')
 
-        self.connection.send_connect(self.server_address)
+#        self.connection.send_connect(self.server_address)
 
         while self.running:
             for event in pygame.event.get():
@@ -99,15 +99,14 @@ class Game:
         
             # actions = self.get_played_action()
             
-            keys = pygame.key.get_pressed()
 
-            self.entity.rect.x += (keys[pygame.K_d] - keys[pygame.K_q])*self.entity.velocity
+            
     
 
-            packets = self.connection.receive_packets()
-            self.handle_packets(packets)
+#            packets = self.connection.receive_packets()
+#           self.handle_packets(packets)
 
-            self.connection.send_message(json.dumps(keys))
+#            self.connection.send_message(json.dumps(keys))
 
 
             
@@ -123,22 +122,17 @@ class Game:
         pygame.quit()
 
 
-    def update(self,direction)->None : 
-        self.entity.set_direction(direction)
-        self.entity.update((self.x, self.y))
-        self.x += 1 * self.entity.get_velocity()
-        
-
-    def update(self,direction)->None : 
-        self.entity.set_direction(direction)
-        self.entity.update((self.x, self.y))
-        self.x += 1 * self.entity.get_velocity()
-        
+    def update(self)->None : 
+        keys = pygame.key.get_pressed()
+        movement = keys[pygame.K_d] - keys[pygame.K_q]
+        if (movement != 0):
+            self.entity.add_x(movement)
 
     def render(self):
         self.screen.fill((0,0,0))
-        self.draw_map(self.screen)
+        self.currentMap.draw_map(self.screen)
         self.entity.render(self.screen)
+
 
 
 

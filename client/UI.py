@@ -94,8 +94,8 @@ class Audio_Manager():
         self.music_volume=1.0
         self.mute=False
 
-        self.sounds_list=Client.loader.loadCsv('./sounds/list.txt')
-        self.music_list=Client.loader.loadCsv('./music/list.txt')
+        # self.sounds_list=Client.loader.loadCsv('./sounds/list.txt')
+        # self.music_list=Client.loader.loadCsv('./music/list.txt')
         # self.sounds =dict()
         # for i in range(len(KEY_SET)):  # charge les sons
         # try:
@@ -195,7 +195,7 @@ class UI():
         pygame.init()
 
         self.client=client #bidirectionnal association
-        #self.audio_manager=Audio_Manager()
+        self.audio_manager=Audio_Manager()
         self.menu=Menu.MAIN #actual menu displayed
 
         self.screen = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT), pygame.RESIZABLE | pygame.SCALED)
