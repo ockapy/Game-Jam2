@@ -18,8 +18,7 @@ class Game:
     def __init__(self,path) -> None:
         pygame.init()
 
-        self.colliders = []
-        #self.connection = Connection()
+        self.connection = Connection()
 
         self.server_address = ("127.0.0.1", 9999)
 
@@ -96,6 +95,7 @@ class Game:
                     self.running = False
 
                             
+            if self.entity.rect.colliderect()
         
             # actions = self.get_played_action()
             
