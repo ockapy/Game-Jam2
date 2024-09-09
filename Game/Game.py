@@ -17,6 +17,7 @@ class Game:
     def __init__(self,path) -> None:
         pygame.init()
 
+        self.colliders = []
         self.connection = Connection()
 
         self.server_address = ("127.0.0.1", 9999)
@@ -62,18 +63,7 @@ class Game:
         
     
     
-    def draw_map(self,screen) -> None:       
-
-        for layer in self.currentMap.visible_layers:
-
-            windowXlimit=screen.get_width() /2 - ((self.currentMap.width / 2 )* self.currentMap.tilewidth*2)
-            windowYlimit=screen.get_height() /2 - ((self.currentMap.height / 2 )* self.currentMap.tilewidth*2)
-            
-            if isinstance(layer, pytmx.TiledTileLayer):
-                for x, y, tile in layer.tiles():
-                    
-                    scaledTile = pygame.transform.scale(tile,(self.currentMap.tilewidth*2, self.currentMap.tileheight*2))
-                    screen.blit(scaledTile, ((x * (self.currentMap.tilewidth*2))+windowXlimit, (y * (self.currentMap.tileheight*2))+windowYlimit))
+    
 
     
     def handle_packets(self, packets: list[bytes]) -> None:
@@ -93,11 +83,9 @@ class Game:
 
     def run(self):
         # Main game loop
-        self.w = 800
-        self.h = 600
         clock = pygame.time.Clock()
 
-        self.loadChar("Assets/Characters/BlowThemUp-player.png",100,100,'right')
+        self.loadChar("Assets/Characters/BlowThemUp-player.png",250,500,'right')
 
         self.connection.send_connect(self.server_address)
 
@@ -105,9 +93,6 @@ class Game:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
-                if event.type == pygame.VIDEORESIZE:
-                    xDiff = self.w - event.dict["size"][0]
-                    yDiff = self.h - event.dict["size"][1]
             
             actions = self.get_played_action()
 
