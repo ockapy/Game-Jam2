@@ -21,65 +21,59 @@ class Game:
 
         self.server_address = ("127.0.0.1", 9999)
 
-        self.screen = self.init_screen(800,600)
+        self.screen = self.init_screen(1280,960)
         self.maps = self.initMaps(path)
         
+        # Maybe change it
         self.currentMap = self.maps["Default"]
-        self.draw_map(self.screen,0,0)
-
-        self.entity = Entity("Assets/Characters/BlowThemUp-player.png", 100, 100, 'right')
+        self.draw_map(self.screen)
+        
+        #self.entity = Entity("Assets/Characters/BlowThemUp-player.png", 100, 100, 'right')
 
         self.running = True
         self.run()
         
         
-    @staticmethod
-    def init_screen(width: int, height: int) -> pygame.Surface:
+    def init_screen(self, width: int, height: int) -> pygame.Surface:
         pygame.display.init()
         screen = pygame.display.set_mode((width, height),  pygame.RESIZABLE | pygame.SCALED)
         return screen
 
-    @staticmethod
-    def initMaps(path) -> dict:
+    def initMaps(self,path) -> dict:
     
         maps = dict()
 
-        dirs = os.listdir(path)
+        directories = os.listdir(path)
 
-        for dir in dirs:
+        for directory in directories:
 
-            filenames = next(walk(path+"/"+dir), (None, None, []))[2]
+            filenames = next(walk(path+"/"+directory), (None, None, []))[2]
 
             for file in filenames:
                 if file.endswith(".tmx"):
-                    tmxData = load_pygame(path+"/"+dir+"/"+file)
+                    tmxData = load_pygame(path+"/"+directory+"/"+file)
                     mapName = file.removesuffix(".tmx")
                     maps[mapName] = tmxData
 
         return maps
     
-    def draw_map(self,screen,xDiff,yDiff) -> None:       
+    def loadChar(self,path,x,y,direction):
+        self.entity = Entity(path,x,y,direction)
         
-        scaleX = 1 - (xDiff / 100)
-        scaleY = 1 - (yDiff / 100)
-
-        quart = ((screen.get_width()//4),(screen.get_height()//4))
+    
+    
+    def draw_map(self,screen) -> None:       
 
         for layer in self.currentMap.visible_layers:
-            scale = (screen.get_width() - screen.get_height())/100
-            if scale < 1:
-                scale = 1
-            
-            windowXlimit=screen.get_width() /2 - ((self.currentMap.width / 2 )* self.currentMap.tilewidth)
-            windowYlimit=screen.get_height() /2 - ((self.currentMap.height / 2 )* self.currentMap.tilewidth)
+
+            windowXlimit=screen.get_width() /2 - ((self.currentMap.width / 2 )* self.currentMap.tilewidth*2)
+            windowYlimit=screen.get_height() /2 - ((self.currentMap.height / 2 )* self.currentMap.tilewidth*2)
             
             if isinstance(layer, pytmx.TiledTileLayer):
                 for x, y, tile in layer.tiles():
-
-                    scaled_tile = pygame.transform.scale(tile,((self.currentMap.tilewidth*scale),(self.currentMap.tileheight*scale)))
-
-                    # screen.blit(scaled_tile, (quart[0] * (self.currentMap.tilewidth*scaleX), quart[1] * (self.currentMap.tileheight*scaleY)))
-                    screen.blit(tile, ((x * (self.currentMap.tilewidth))+windowXlimit, (y * (self.currentMap.tileheight))+windowYlimit))
+                    
+                    scaledTile = pygame.transform.scale(tile,(self.currentMap.tilewidth*2, self.currentMap.tileheight*2))
+                    screen.blit(scaledTile, ((x * (self.currentMap.tilewidth*2))+windowXlimit, (y * (self.currentMap.tileheight*2))+windowYlimit))
 
     
     def handle_packets(self, packets: list[bytes]) -> None:
@@ -103,6 +97,8 @@ class Game:
         self.h = 600
         clock = pygame.time.Clock()
 
+        self.loadChar("Assets/Characters/BlowThemUp-player.png",100,100,'right')
+
         self.connection.send_connect(self.server_address)
 
         while self.running:
@@ -120,13 +116,6 @@ class Game:
 
             self.connection.send_message(json.dumps(actions))
             
-            if K_LEFT:
-                self.update('right')
-
-            #Update the game
-            #self.update()
-
-
 
             # Update the display
             self.render()
@@ -145,7 +134,7 @@ class Game:
 
     def render(self):
         self.screen.fill((0,0,0))
-        self.draw_map(self.screen, 0,0)
+        self.draw_map(self.screen)
         self.entity.render(self.screen)
 
 
