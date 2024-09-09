@@ -24,6 +24,7 @@ import json
 from enum import Enum
 from time import sleep, time
 from Player import Player
+from ServerConnection import ServerConnection
 
 TARGET_TPS = 30
 BUFFER_SIZE = 1024
@@ -42,9 +43,7 @@ class Server:
     def __init__(self, config: dict) -> None:
         print(f"{config=}")
 
-        self.udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.udp_socket.setblocking(False)
-        self.udp_socket.bind(config.get("address"))
+        self.server_connection = ServerConnection(config.get("address"))
 
         self.state = ServerState.WAIT_CON
         self.client_addr = dict() # dictionnaire faisant la correspondance entre le client et le id réseaux
@@ -63,10 +62,6 @@ class Server:
 
     def create_player(self, net_id:int) -> None:
         self.entities[net_id] = Player()
-    
-    def sendto_all_client(self, data: bytes) -> None:
-        for c_addr in self.client_addr.keys():
-            self.udp_socket.sendto(data, c_addr)
     
     def run(self) -> None:
         """Boucle principale du server"""
@@ -92,7 +87,7 @@ class Server:
     
     def connect_player(self) -> None:
         """Tente la connection de nouveau joueur"""
-        incoming_packets = self.receive_all_packet()
+        incoming_packets = self.server_connection.receive_all_packet()
 
         for p, addr in incoming_packets:
             if p == PING:
@@ -102,16 +97,6 @@ class Server:
             self.state = ServerState.GAME_SETUP
             print("INFO: Starting game !")
     
-    def receive_all_packet(self) -> list[tuple[bytes, tuple[str, int]]]:
-        packets = []
-        
-        while True:
-            try:
-                inc_packet = self.udp_socket.recvfrom(BUFFER_SIZE)
-                packets.append(inc_packet)
-            except:
-                break
-        return packets
     
     def add_client(self, new_addr: tuple[str, int]) -> None:
         if self.client_addr.get(new_addr) == None: # verification si déja connecter
@@ -121,18 +106,18 @@ class Server:
             self.create_player(player_net_id)
 
             print(f"INFO: New connection from {new_addr} with network id {self.next_net_id}")
-            self.udp_socket.sendto(PONG, new_addr)
+            self.server_connection.sendto(PONG, new_addr)
 
     def setup_game(self) -> None:
         """Envoie le paquet pour le début de jeu"""
         packet = dict()
         packet["map"] = "Default"
-        self.sendto_all_client(json.dumps(packet))
+        self.server_connection.sendto_all_client(json.dumps(packet).encode("utf-8"))
 
     def update_game(self) -> None:
         """Mise à jours de l'état du jeu"""
 
-        inc_packet = self.receive_all_packet()
+        inc_packet = self.server_connection.receive_all_packet()
 
         # Change les actions reçu 
         for data, addr in inc_packet:
@@ -145,7 +130,7 @@ class Server:
         
         serialized_entities = self.serialize_entities()
         
-        self.sendto_all_client(serialized_entities.encode("utf-8"))
+        self.server_connection.sendto_all_client(serialized_entities.encode("utf-8"))
     
     def serialize_entities(self) -> str:
         entities_dict = dict()
