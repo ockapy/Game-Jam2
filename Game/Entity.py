@@ -41,7 +41,7 @@ class Entity :
         self.animation_entity()
     
     def render(self, screen):
-        test = pygame.transform.scale(self.skin, (self.skin.get_width() * 5, self.skin.get_height()*5))
-        screen.blit(test, self.get_position())
+        skin = pygame.transform.scale(self.skin, (self.skin.get_width() * 2, self.skin.get_height()*2))
+        screen.blit(skin, self.get_position())
 
         
