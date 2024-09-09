@@ -116,6 +116,8 @@ class Game:
 
             self.connection.send_message(json.dumps(actions))
             
+            #Update the game
+            self.update()
 
             # Update the display
             self.render()
@@ -131,6 +133,9 @@ class Game:
         self.entity.update((self.x, self.y))
         self.x += 1 * self.entity.get_velocity()
         
+
+    def update(self)->None : 
+        self.entity.update()
 
     def render(self):
         self.screen.fill((0,0,0))

@@ -52,9 +52,8 @@ class Entity :
         self.countFrame += 1 
         if (self.countFrame % 16 == 15) : self.countSteps +=1
 
-    def update(self, vec):
-        #self.moveTo()
-        self.set_position(vec[0], vec[1])
+    def update(self):
+        self.moveTo()
         
     
     def render(self, screen):
