@@ -51,6 +51,8 @@ class Server:
 
         self.NUM_PLAYER = config.get("num_player")
         self.next_net_id = 0
+
+        self.delta_time = 0
     
     def new_net_id(self) -> int:
         self.next_net_id += 1
@@ -69,6 +71,7 @@ class Server:
         compute_time = 0
         print("Start server")
         while run:
+            start_delta_time = time()
             start_compute_time = time()
             match self.state:
                 case ServerState.WAIT_CON:
@@ -82,6 +85,7 @@ class Server:
             
             compute_time = start_compute_time - time()
             sleep(max((1/TARGET_TPS) - compute_time, 0))
+            self.delta_time = start_delta_time - time()
     
     def connect_player(self) -> None:
         """Tente la connection de nouveau joueur"""
@@ -131,7 +135,7 @@ class Server:
             self.entities[net_id].set_action(action_dict)
 
         for e_id in self.entities.keys():
-            self.entities[e_id].update()
+            self.entities[e_id].update(self.delta_time)
         
         serialized_entities = self.serialize_entities()
         
