@@ -11,6 +11,7 @@ class Entity :
         self.direction = direction
         self.countSteps = 0
         self.countFrame = 0
+        self.velocity = 5
 
     def get_asset(self) -> pygame.Surface :
         return self.asset
@@ -37,11 +38,18 @@ class Entity :
         if (self.countFrame % 16 == 15) : self.countSteps +=1
 
     def update(self):
-        self.set_direction("left")
-        self.animation_entity()
+        self.moveTo()
+        
     
     def render(self, screen):
         skin = pygame.transform.scale(self.skin, (self.skin.get_width() * 2, self.skin.get_height()*2))
         screen.blit(skin, self.get_position())
 
+
+    def moveTo(self) : 
+        if(self.direction=='right'):
+            self.rect.x += self.velocity
+        elif(self.direction=='left'):
+            self.rect.x -= self.velocity
+        self.animation_entity()
         

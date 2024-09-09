@@ -117,8 +117,13 @@ class Game:
 
             self.connection.send_message(json.dumps(actions))
             
+            if K_LEFT:
+                self.update('right')
+
             #Update the game
-            self.update()
+            #self.update()
+
+
 
             # Update the display
             self.render()
@@ -129,7 +134,8 @@ class Game:
         pygame.quit()
 
 
-    def update(self)->None : 
+    def update(self,direction)->None : 
+        self.entity.set_direction(direction)
         self.entity.update()
 
     def render(self):
