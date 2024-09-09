@@ -129,8 +129,11 @@ class Game:
         self.x += 1 * self.entity.get_velocity()
         
 
-    def update(self)->None : 
-        self.entity.update()
+    def update(self,direction)->None : 
+        self.entity.set_direction(direction)
+        self.entity.update((self.x, self.y))
+        self.x += 1 * self.entity.get_velocity()
+        
 
     def render(self):
         self.screen.fill((0,0,0))
