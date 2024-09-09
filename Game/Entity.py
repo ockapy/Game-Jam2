@@ -13,6 +13,9 @@ class Entity :
         self.countFrame = 0
         self.velocity = 3
 
+    def get_rect(self):
+        return self.rect
+
     def get_velocity(self):
         return self.velocity
 
