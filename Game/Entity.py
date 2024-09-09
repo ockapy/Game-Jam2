@@ -69,5 +69,3 @@ class Entity :
             self.rect.x -= self.velocity
         self.animation_entity()
 
-
-        
