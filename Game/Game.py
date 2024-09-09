@@ -11,6 +11,9 @@ from Connection import Connection
 
 class Game:
 
+    x = 1
+    y = 1
+
     def __init__(self,path) -> None:
         pygame.init()
 
@@ -136,7 +139,9 @@ class Game:
 
     def update(self,direction)->None : 
         self.entity.set_direction(direction)
-        self.entity.update()
+        self.entity.update((self.x, self.y))
+        self.x += 1 * self.entity.get_velocity()
+        
 
     def render(self):
         self.screen.fill((0,0,0))

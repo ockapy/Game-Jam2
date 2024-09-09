@@ -11,7 +11,10 @@ class Entity :
         self.direction = direction
         self.countSteps = 0
         self.countFrame = 0
-        self.velocity = 5
+        self.velocity = 3
+
+    def get_velocity(self):
+        return self.velocity
 
     def get_asset(self) -> pygame.Surface :
         return self.asset
@@ -22,6 +25,7 @@ class Entity :
     def set_position(self, x, y) -> None : 
         self.rect.x = x
         self.rect.y = y
+        self.animation_entity()
 
     def set_direction(self, direction) -> None : 
         self.direction = direction
@@ -37,8 +41,9 @@ class Entity :
         self.countFrame += 1 
         if (self.countFrame % 16 == 15) : self.countSteps +=1
 
-    def update(self):
-        self.moveTo()
+    def update(self, vec):
+        #self.moveTo()
+        self.set_position(vec[0], vec[1])
         
     
     def render(self, screen):
