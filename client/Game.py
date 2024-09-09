@@ -2,13 +2,12 @@ import pygame.display
 import pygame, os, pytmx
 import socket
 import json
-from TmxMap import Map
 from os import walk
 from pygame.locals import *
 from pytmx.util_pygame import load_pygame
-from Entity import Entity
 from Connection import Connection
-
+from TmxMap import Map
+from Entity import Entity
 
 class Game:
 
@@ -22,13 +21,6 @@ class Game:
         self.screen = self.init_screen(1280,960)
         self.maps = self.initMaps(path)
         
-        # Maybe change it
-        self.currentMap = self.maps[0]
-        
-        #self.entity = Entity("Assets/Characters/BlowThemUp-player.png", 100, 100, 'right')
-
-        self.running = True
-        self.run()
         
         
     def init_screen(self, width: int, height: int) -> pygame.Surface:
@@ -55,7 +47,7 @@ class Game:
 
         return maps
     
-    def loadChar(self,path,x,y,direction):
+    def  loadChar(self,path,x,y,direction):
         self.entity = Entity(path,x,y,direction)
         
     
@@ -77,6 +69,18 @@ class Game:
     def get_played_action(self):
         keycodes = [k for k in range(len(pygame.key.get_pressed())) if pygame.key.get_pressed()[k]]
         return keycodes
+    
+    def update_game(self):
+
+            actions = self.get_played_action()
+            
+            packets = self.connection.receive_packets()
+            self.handle_packets(packets)
+
+            self.connection.send_message(json.dumps(actions))
+            
+            #Update the game
+            self.update()
 
     def run(self):
         # Main game loop
@@ -131,5 +135,5 @@ class Game:
 
 
 
-
-game = Game("Map/Arenas")
+if __name__ == "__main__":
+    game = Game("Map/Arenas")

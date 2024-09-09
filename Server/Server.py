@@ -7,6 +7,8 @@ Le server utilise des strings utf-8 encodé (bytes python comme b"")
 - Le client doit envoyer un string b"ping".
 - Si le server a ajouter le client au server alors il renverra b"pong" pour accépté la connection
 
+## Début du jeu
+- Le server envoie un packet indiquant le début du jeu par un objet JSON contenant le nom de la map jouer
 ## Transmition en jeu
 - Le Client doit envoyer les keycodes pygame pour les touches dans un array JSON. Exemple: touche 'd' appuyer -> message envoyer: b"[100]"
 - Le server envoye les informations du monde dans un objet JSON.
@@ -28,6 +30,7 @@ BUFFER_SIZE = 1024
 
 PING = b"ping"
 PONG = b"pong"
+
 
 class ServerState(Enum):
     WAIT_CON = 0
@@ -96,7 +99,7 @@ class Server:
                 self.add_client(addr)
         
         if len(self.client_addr) == self.NUM_PLAYER:
-            self.state = ServerState.PLAYING
+            self.state = ServerState.GAME_SETUP
             print("INFO: Starting game !")
     
     def receive_all_packet(self) -> list[tuple[bytes, tuple[str, int]]]:
@@ -121,7 +124,10 @@ class Server:
             self.udp_socket.sendto(PONG, new_addr)
 
     def setup_game(self) -> None:
-        pass
+        """Envoie le paquet pour le début de jeu"""
+        packet = dict()
+        packet["map"] = "Default"
+        self.sendto_all_client(json.dumps(packet))
 
     def update_game(self) -> None:
         """Mise à jours de l'état du jeu"""

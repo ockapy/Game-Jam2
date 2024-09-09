@@ -1,7 +1,9 @@
 from enum import Enum
+import json
 import socket
 import UI
 from Connection import Connection
+from Game import Game
 
 class ClientState(Enum):
     OFFLINE= 0
@@ -14,6 +16,7 @@ class ClientClass():
         self.state= ClientState.OFFLINE
         self.ui=UI.UI(self)
         self.connection = Connection()
+        self.game = Game("Map/Arenas")
 
     def get_state(self):
         return self.state
@@ -25,6 +28,7 @@ class ClientClass():
         running =True
         while running :
 
+            # Update varié
             match self.state:
                 case ClientState.OFFLINE:
                     pass
@@ -32,8 +36,15 @@ class ClientClass():
                     packets = self.connection.receive_packets()
                     self.connection.has_connected(packets)                
                 case ClientState.PLAYING:
+                    packets = self.connection.receive_packets()
+                    for packet in packets:
+                        if packet.decode("utf-8").find("map"):
+                            obj = json.loads(packet.decode("utf-8"))
+                            for mapData in self.game.maps:
+                                if mapData.name == obj:
+                                    self.game.currentMap = mapData
+                    self.game.update_game()
                     pass
-        
             running=self.ui.handle_event()
             self.ui.render()
     
@@ -43,7 +54,7 @@ class ClientClass():
 
     def connect_server(self,addr : str) ->None: 
         try:
-            ip,port =addr.split(":")
+            ip,port = addr.split(":")
             self.connection.send_connect((ip,int(port)))
             self.state = ClientState.WAIT_CON
         except:

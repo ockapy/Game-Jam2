@@ -213,6 +213,7 @@ class UI():
         self.screen = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT), pygame.RESIZABLE | pygame.SCALED)
         self.clock= pygame.time.Clock()
 
+
         #objects group by menu
         self.main_sprites = pygame.sprite.Group()
         self.connection_sprites = pygame.sprite.Group()
@@ -304,6 +305,7 @@ class UI():
         self.screen.blit(music_volume_surface,(SCREEN_WIDTH/4,SCREEN_HEIGHT/3))
 
     def render(self):
+        # Rendu varié
         match self.menu :
             case Menu.MAIN:
                 self.render_main()
@@ -312,6 +314,7 @@ class UI():
             case Menu.SETTINGS:
                 self.render_settings()
             case Menu.GAME:
+                self.client.game.render()
                 pass
 
         pygame.display.flip()
