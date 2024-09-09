@@ -36,6 +36,10 @@ class ClientClass():
         
             running=self.ui.handle_event()
             self.ui.render()
+    
+    def start_game(self):
+        self.state=ClientState.PLAYING
+        pass
 
     def connect_server(self,addr : str) ->None: 
         try:

@@ -13,8 +13,9 @@ class Menu(Enum):
     SETTINGS=3
 
 class Button(pygame.sprite.Sprite):
-    def __init__(self,pos,dim,color,callback,group,text=None,textcolor="black" ,texture=None) -> None:
+    def __init__(self,pos,dim,color,callback,group,text=None,textcolor="black" ,texture=None ,disable=False) -> None:
         super().__init__(group)
+        self.disable=disable
         if callback!=None:
                 self.callback=callback[0]
                 self.callback_arg=callback[1]
@@ -37,11 +38,13 @@ class Button(pygame.sprite.Sprite):
         text_render=font.render(self.text,False,self.textcolor)
         self.image.blit(text_render,((self.rect.w-text_render.get_width() )/2,(self.rect.h-text_render.get_height() )/2))
 
+    def enable(self,bool=True):
+        self.disable = not bool
 
     def update(self,event) -> None:  #on click event
 
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if self.rect.collidepoint(pygame.mouse.get_pos()):
+            if self.rect.collidepoint(pygame.mouse.get_pos()) and not self.disable:
                 if self.callback_arg!=None:
                     self.callback(self.callback_arg)
                 else:
@@ -49,10 +52,11 @@ class Button(pygame.sprite.Sprite):
 
 class Input(Button):
         
-    def __init__(self,pos,dim,color,group,text=None ,textcolor="grey",input_textcolor="black",texture=None) -> None:
+    def __init__(self,pos,dim,color,callback,group,text=None ,textcolor="grey",input_textcolor="black",texture=None,) -> None:
         self.focused=False
         self.input_text=""
         self.input_textcolor=input_textcolor
+        self.callback=callback[0]
         print(len(self.input_text))
 
         super().__init__(pos,dim,color,None,group,text,textcolor ,texture)
@@ -70,6 +74,8 @@ class Input(Button):
         if event.type == pygame.KEYDOWN and self.focused:
             if event.key == pygame.K_BACKSPACE:
                 self.input_text = self.input_text[:-1]
+            elif event.key == pygame.K_RETURN :
+                self.callback()
             else:   
                 self.input_text += event.unicode
     
@@ -168,17 +174,23 @@ class UI():
     def connect_to_serverip(self):
         self.client.connect_server( self.input["ADDRESS"].get_text())
 
+    def start_game(self):
+        self.menu=Menu.GAME
+        self.client.start_game()
+
     #init objects to display on the spec. menu
     def init_main(self):
-        Button((SCREEN_WIDTH/3,SCREEN_HEIGHT/2),(150,40),"black",(self.set_menu,Menu.CONNECTION),self.main_sprites,"play !","yellow")
+        Button((SCREEN_WIDTH/3,SCREEN_HEIGHT/2),(150,40),"black",(self.set_menu,Menu.CONNECTION),self.main_sprites,"Play !","yellow")
         Button((SCREEN_WIDTH/3,SCREEN_HEIGHT/1.5),(150,40),"black",(self.set_menu,Menu.SETTINGS),self.main_sprites,"SETTINGS","yellow")
 
 
     def init_connection(self):
         Button((SCREEN_WIDTH/8,SCREEN_HEIGHT/8),(150,40),"red",(self.quit_connect,None),self.connection_sprites,"back")
         #address input
-        self.input["ADDRESS"] = Input((SCREEN_WIDTH/3,SCREEN_HEIGHT/3),(200,40),"red",self.connection_sprites,"IP Address")
+        self.input["ADDRESS"] = Input((SCREEN_WIDTH/3,SCREEN_HEIGHT/3),(200,40),"red",(self.connect_to_serverip,None),self.connection_sprites,"IP Address")
         Button((SCREEN_WIDTH*2/3,SCREEN_HEIGHT/3),(150,40),"red",(self.connect_to_serverip,None),self.connection_sprites,"Connect")
+
+        self.startbutton=Button((SCREEN_WIDTH /1.5,SCREEN_HEIGHT/2),(150,40),"red",(self.start_game,None),self.connection_sprites,"Start !",disable=True)
       
     def init_settings(self):
         Button((SCREEN_WIDTH/8,SCREEN_HEIGHT/8),(150,40),"red",(self.set_menu,Menu.MAIN),self.settings_sprites,"back")
@@ -244,6 +256,7 @@ class UI():
             surface=pygame.Surface((150,40*4+4))
             surface.fill("grey")
             if self.client.is_connected():
+                self.startbutton.enable(True)
             #display the player list  !PROTOTYPE!
 
                 #players = self.client.getplayers()
@@ -299,7 +312,6 @@ class UI():
             case Menu.SETTINGS:
                 self.render_settings()
             case Menu.GAME:
-                    
                 pass
 
         pygame.display.flip()
