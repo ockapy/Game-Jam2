@@ -14,7 +14,7 @@ class Game:
     def __init__(self,path) -> None:
         pygame.init()
 
-        self.connection = Connection()
+        self.connection = None
 
         self.screen = self.init_screen(1280,960)
         self.maps = self.initMaps(path)
@@ -58,7 +58,6 @@ class Game:
     def update_entities(self, replication_packet):
         print(f"{replication_packet=}")
         for i in json.loads(replication_packet).keys():
-            print(f"{self.entities.get(i)=}")
             if self.entities.get(i) is None:
                 packet = json.loads(replication_packet)
                 print(packet)

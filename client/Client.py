@@ -17,6 +17,7 @@ class ClientClass():
         self.ui=UI.UI(self)
         self.connection = Connection()
         self.game = Game("Map/Arenas")
+        self.game.connection = self.connection
 
     def get_state(self):
         return self.state
