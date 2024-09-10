@@ -34,6 +34,8 @@ class Player:
             if not self.__prev_tick_jump:
                 has_jumped = 1
             self.__prev_tick_jump = True
+        elif len(self.current_action) == 0:
+            self.__prev_tick_jump = self.__prev_tick_jump
         else:
             self.__prev_tick_jump = False
 
