@@ -319,6 +319,6 @@ class UI():
 
         pygame.display.flip()
 
-        self.clock.tick(20) #max x loop per second
+        self.clock.tick(60) #max x loop per second
 
         

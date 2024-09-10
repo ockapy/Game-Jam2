@@ -147,7 +147,7 @@ class Server:
 if __name__ == "__main__":
     config = {
         "address": ("127.0.0.1", 9999),
-        "num_player": 2
+        "num_player": 1
     }
     server = Server(config)
     server.run()

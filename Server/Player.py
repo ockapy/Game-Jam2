@@ -1,10 +1,10 @@
 import pygame
 
 class Player:
-    GRAVITY = pygame.Vector2(0, 600)
+    GRAVITY = pygame.Vector2(0, 1200)
     JUMP_FORCE = pygame.Vector2(0, -30000)
-    GROUND_ACCEL = 2000
-    MAX_VELOCITY = 300
+    GROUND_ACCEL = 1400
+    MAX_VELOCITY = 175
     FRICTION = 200
     def __init__(self) -> None:
         self.position = pygame.Vector2(400, 400)
@@ -42,7 +42,17 @@ class Player:
         if pygame.K_j in self.current_action:
             #print("Attack")
             pass
-        
+        if (pygame.K_q not in self.current_action) and (pygame.K_d not in self.current_action):
+            
+            if self.velocity.x > 0:
+                self.velocity.x -= 7
+                if self.velocity.x < 0:
+                    self.velocity.x = 0
+
+            elif self.velocity.x < 0:
+                self.velocity.x += 7
+                if self.velocity.x > 0:
+                    self.velocity.x = 0
 
         # Methode de l'integration de verlet https://www.compadre.org/PICUP/resources/Numerical-Integration/
         vel_dir = pygame.Vector2(0, 0)
@@ -60,11 +70,11 @@ class Player:
         self.acceleration = sum_of_force
         self.velocity = average_velocity + (self.acceleration * delta_time) / 2.0
 
-        if abs(self.velocity.x) >= Player.MAX_VELOCITY:
-            if self.velocity.x >= Player.MAX_VELOCITY:
-                self.velocity.x = Player.MAX_VELOCITY
-            else:
-                self.velocity.x = -Player.MAX_VELOCITY
+        if self.velocity.x >= Player.MAX_VELOCITY:
+            self.velocity.x = Player.MAX_VELOCITY
+
+        elif self.velocity.x < -Player.MAX_VELOCITY:
+            self.velocity.x = -Player.MAX_VELOCITY
         
         # Collision
         if self.position.y >= 500:
