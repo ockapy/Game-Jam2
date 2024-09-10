@@ -43,10 +43,9 @@ class Server:
     def __init__(self, config: dict) -> None:
         print(f"{config=}")
 
-        self.server_connection = ServerConnection(config.get("address"))
+        self.server_connection = ServerConnection(self, config.get("address"))
 
         self.state = ServerState.WAIT_CON
-        self.client_addr = dict() # dictionnaire faisant la correspondance entre le client et le id réseaux
         
         self.maps = {1: "map1"}
         self.entities: dict[int, Player] = dict()
@@ -96,8 +95,7 @@ class Server:
         if len(self.client_addr) == self.NUM_PLAYER:
             self.state = ServerState.GAME_SETUP
             print("INFO: Starting game !")
-    
-    
+     
     def add_client(self, new_addr: tuple[str, int]) -> None:
         if self.client_addr.get(new_addr) == None: # verification si déja connecter
 
