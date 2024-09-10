@@ -71,12 +71,6 @@ class ClientClass():
             pass
         self.state=ClientState.OFFLINE
 
-    def receive_packet(self):
-        #rcv
-        #data ctrl
-        #match case ?  | run fctn
-        pass
-
 class loader:
     def loadCsv(csv):
         list= []
