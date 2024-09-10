@@ -49,7 +49,7 @@ class Server:
         
         self.maps = {1: "map1"}
         self.entities: dict[int, Player] = dict()
-
+        self.client_addr = dict()
         self.NUM_PLAYER = config.get("num_player")
         self.next_net_id = 0
 
