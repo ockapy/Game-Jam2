@@ -44,14 +44,7 @@ class Game:
                     tmxMap.name = file.removesuffix(".tmx")
                     maps.append(tmxMap)
 
-        return maps
-    
-    def loadChar(self,path,x,y,direction):
-        self.entity = Entity(path,x,y,direction)
-        
-    
-    
-    
+        return maps    
 
     
     def handle_packets(self, packets: list[bytes]) -> None:
@@ -62,19 +55,25 @@ class Game:
         if repl_packet is not None:
             self.update_entities(repl_packet)
 
-    def update_entities(self, replication_packet: dict):
+    def update_entities(self, replication_packet):
         print(f"{replication_packet=}")
+        for i in json.loads(replication_packet).keys():
+            print(f"{self.entities.get(i)=}")
+            if self.entities.get(i) is None:
+                packet = json.loads(replication_packet)
+                print(packet)
+                self.entities[i] = Entity("Assets/Characters/BlowThemUp-player.png",packet.get(str(i)).get("pos")[0], packet.get(str(i)).get("pos")[1],"right")
     
     def get_played_action(self):
         keycodes = [k for k in range(len(pygame.key.get_pressed())) if pygame.key.get_pressed()[k]]
         return keycodes
     
-    def update_game(self):
+    def update_game(self,packets):
 
             actions = self.get_played_action()
             
-            packets = self.connection.receive_packets()
             self.handle_packets(packets)
+
 
             self.connection.send_message(json.dumps(actions))
             

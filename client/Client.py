@@ -48,7 +48,7 @@ class ClientClass():
                                     self.state = ClientState.PLAYING
                 case ClientState.PLAYING:
                     self.ui.menu = UI.Menu.GAME                      
-                    self.game.update_game()
+                    self.game.update_game(packets)
 
             running=self.ui.handle_event()
             self.ui.render()
