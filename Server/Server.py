@@ -122,7 +122,8 @@ class Server:
         for data, addr in inc_packet:
             action_dict = json.loads(data.decode("utf-8"))
             net_id = self.client_addr.get(addr)
-            self.entities[net_id].set_action(action_dict)
+            if net_id is not None:
+                self.entities[net_id].set_action(action_dict)
 
         for e_id in self.entities.keys():
             self.entities[e_id].update(self.delta_time)

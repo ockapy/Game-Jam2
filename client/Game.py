@@ -16,10 +16,9 @@ class Game:
 
         self.connection = Connection()
 
-        self.server_address = ("127.0.0.1", 9999)
-
         self.screen = self.init_screen(1280,960)
         self.maps = self.initMaps(path)
+        self.entities = dict()
         
         
         
@@ -47,7 +46,7 @@ class Game:
 
         return maps
     
-    def  loadChar(self,path,x,y,direction):
+    def loadChar(self,path,x,y,direction):
         self.entity = Entity(path,x,y,direction)
         
     
@@ -79,59 +78,11 @@ class Game:
 
             self.connection.send_message(json.dumps(actions))
             
-            #Update the game
-            self.update()
-
-    def run(self):
-        # Main game loop
-        clock = pygame.time.Clock()
-
-        self.loadChar("Assets/Characters/BlowThemUp-player.png",250,500,'right')
-
-#        self.connection.send_connect(self.server_address)
-
-        while self.running:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    self.running = False
-
-                            
-        
-            # actions = self.get_played_action()
-            
-
-            
-    
-
-#            packets = self.connection.receive_packets()
-#           self.handle_packets(packets)
-
-#            self.connection.send_message(json.dumps(keys))
-
-
-            
-            #Update the game
-            self.update()
-
-            # Update the display
-            self.render()
-
-            pygame.display.update()
-            clock.tick(60)
-
-        pygame.quit()
-
-
-    def update(self)->None : 
-        keys = pygame.key.get_pressed()
-        movement = keys[pygame.K_d] - keys[pygame.K_q]
-        if (movement != 0):
-            self.entity.add_x(movement)
-
-    def render(self):
-        self.screen.fill((0,0,0))
-        self.currentMap.draw_map(self.screen)
-        self.entity.render(self.screen)
+    def render(self,screen):
+        screen.fill((0,0,0))
+        self.currentMap.draw_map(screen)
+        for entity in self.entities.values():
+            entity.render(screen)
 
 
 
