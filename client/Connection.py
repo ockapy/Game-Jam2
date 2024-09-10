@@ -11,6 +11,8 @@ class Connection:
         self.socket.setblocking(False)
 
         self.is_connected = False
+        
+        self.server_address = None
     
     def receive_packets(self) -> list[bytes]:
         incoming_packets = []
@@ -33,7 +35,7 @@ class Connection:
         self.socket.sendto(Connection.PING, self.server_address)
     
     def has_connected(self, packets: list[bytes]) -> bool:
-        if not self.is_connected and Connection.PING in packets:
+        if not self.is_connected and Connection.PONG in packets:
             self.is_connected = True
             print("INFO: Client connected to ", self.server_address)
     

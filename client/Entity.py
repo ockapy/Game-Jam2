@@ -11,6 +11,13 @@ class Entity :
         self.direction = direction
         self.countSteps = 0
         self.countFrame = 0
+        self.velocity = 3
+
+    def get_rect(self):
+        return self.rect
+
+    def get_velocity(self):
+        return self.velocity
 
     def get_asset(self) -> pygame.Surface :
         return self.asset
@@ -19,8 +26,30 @@ class Entity :
         return (self.rect.x, self.rect.y)
     
     def set_position(self, x, y) -> None : 
+
+        if x >= self.rect.x:
+            self.set_direction("right")
+        else:
+            self.set_direction("left")
+
         self.rect.x = x
         self.rect.y = y
+        self.animation_entity()
+
+    def add_x(self, x):
+        move = x*self.velocity           
+        
+        if move < 0:
+            self.set_direction("left")
+        else: 
+            self.set_direction("right")
+
+        self.rect.x += x * self.velocity
+        self.animation_entity()
+
+    def add_y(self, y):
+        self.rect.y += y * self.velocity
+        self.animation_entity()
 
     def set_direction(self, direction) -> None : 
         self.direction = direction
@@ -35,13 +64,17 @@ class Entity :
             self.skin = pygame.transform.flip(self.asset.subsurface(pygame.Rect(16*(self.countSteps % 4),0,16,32)),180,0) 
         self.countFrame += 1 
         if (self.countFrame % 16 == 15) : self.countSteps +=1
-
-    def update(self):
-        self.set_direction("left")
-        self.animation_entity()
+      
     
     def render(self, screen):
-        test = pygame.transform.scale(self.skin, (self.skin.get_width() * 5, self.skin.get_height()*5))
-        screen.blit(test, self.get_position())
+        skin = pygame.transform.scale(self.skin, (self.skin.get_width() * 2, self.skin.get_height()*2))
+        screen.blit(skin, self.get_position())
 
-        
+
+    def moveTo(self) : 
+        if(self.direction=='right'):
+            self.rect.x += self.velocity
+        elif(self.direction=='left'):
+            self.rect.x -= self.velocity
+        self.animation_entity()
+

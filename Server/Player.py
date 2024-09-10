@@ -69,7 +69,7 @@ class Player:
             self.position.y = 500
             self.velocity.y = 0
         
-        print("acc: ", self.acceleration, "\vel", self.velocity)
+        #print("acc: ", self.acceleration, "\tvel", self.velocity)
         
         self.__reset_action()
         
