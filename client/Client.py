@@ -28,23 +28,28 @@ class ClientClass():
         running =True
         while running :
 
+            packets = self.connection.receive_packets()
+
+
             # Update varié
             match self.state:
                 case ClientState.OFFLINE:
                     pass
                 case ClientState.WAIT_CON:
-                    packets = self.connection.receive_packets()
-                    self.connection.has_connected(packets)                
-                case ClientState.PLAYING:
-                    packets = self.connection.receive_packets()
+                    self.connection.has_connected(packets)
                     for packet in packets:
-                        if packet.decode("utf-8").find("map"):
+                        if packet.decode("utf-8").find("map") != -1:
+                            print(packet)
                             obj = json.loads(packet.decode("utf-8"))
                             for mapData in self.game.maps:
-                                if mapData.name == obj:
+                                print(obj.get("map"))
+                                if mapData.name == obj.get("map"):
                                     self.game.currentMap = mapData
+                                    self.state = ClientState.PLAYING
+                case ClientState.PLAYING:
+                    self.ui.menu = UI.Menu.GAME                      
                     self.game.update_game()
-                    pass
+
             running=self.ui.handle_event()
             self.ui.render()
     
@@ -56,6 +61,7 @@ class ClientClass():
         try:
             ip,port = addr.split(":")
             self.connection.send_connect((ip,int(port)))
+            self.game.connection.server_address = (ip,int(port))
             self.state = ClientState.WAIT_CON
         except:
             pass

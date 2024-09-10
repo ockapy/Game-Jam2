@@ -11,6 +11,8 @@ class Connection:
         self.socket.setblocking(False)
 
         self.is_connected = False
+        
+        self.server_address = None
     
     def receive_packets(self) -> list[bytes]:
         incoming_packets = []

@@ -314,7 +314,7 @@ class UI():
             case Menu.SETTINGS:
                 self.render_settings()
             case Menu.GAME:
-                self.client.game.render()
+                self.client.game.render(self.screen)
                 pass
 
         pygame.display.flip()
