@@ -111,6 +111,7 @@ class Server:
         packet = dict()
         packet["map"] = "Default"
         self.server_connection.sendto_all_client(json.dumps(packet).encode("utf-8"))
+        self.state = ServerState.PLAYING
 
     def update_game(self) -> None:
         """Mise à jours de l'état du jeu"""
