@@ -58,10 +58,13 @@ class Game:
     def update_entities(self, replication_packet):
         print(f"{replication_packet=}")
         for i in json.loads(replication_packet).keys():
+            packet = json.loads(replication_packet)
+            x = packet.get(str(i)).get("pos")[0]
+            y = packet.get(str(i)).get("pos")[1]                
             if self.entities.get(i) is None:
-                packet = json.loads(replication_packet)
-                print(packet)
-                self.entities[i] = Entity("Assets/Characters/BlowThemUp-player.png",packet.get(str(i)).get("pos")[0], packet.get(str(i)).get("pos")[1],"right")
+                self.entities[i] = Entity("Assets/Characters/BlowThemUp-player.png",x, y,"right")
+            else:
+                self.entities[i].set_position(x,y)
     
     def get_played_action(self):
         keycodes = [k for k in range(len(pygame.key.get_pressed())) if pygame.key.get_pressed()[k]]

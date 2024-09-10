@@ -26,6 +26,12 @@ class Entity :
         return (self.rect.x, self.rect.y)
     
     def set_position(self, x, y) -> None : 
+
+        if x >= self.rect.x:
+            self.set_direction("right")
+        else:
+            self.set_direction("left")
+
         self.rect.x = x
         self.rect.y = y
         self.animation_entity()
