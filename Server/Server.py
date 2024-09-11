@@ -47,7 +47,7 @@ class Server:
     def __init__(self, config: dict) -> None:
         print(f"{config=}")
 
-        self.server_connection = ServerConnection(self, config.get("address"))
+        self.server_connection = ServerConnection(self, (config.get("server_ip"), config.get("server_port")))
 
         self.state = ServerState.WAIT_CON
         
@@ -197,10 +197,41 @@ class Server:
                     coliders.append(tileRect)
         return coliders
 
-if __name__ == "__main__":
-    config = {
-        "address": ("127.0.0.1", 9999),
-        "num_player": 1
+def load_config(path):
+    import jsonschema
+    config_schema = {
+        "properties": {
+            "server_ip": {
+                "type": "string"
+            },
+            "server_port": {
+                "type": "integer"
+            },
+            "num_player": {
+                "type": "integer"
+            }
+        },
+        "required": ["server_ip", "server_port", "num_player"]
     }
+    
+    content = ""
+    with open(path, "r") as f:
+        content = f.read()
+    try:
+        json_obj = json.loads(content)
+    except:
+        print("Impossible de chargé la configuration")
+        exit(1)
+    
+    try:
+        jsonschema.validate(json_obj, config_schema)
+        return json_obj
+    except Exception as e:
+        print("Le fichier de configuration n'est pas valide")
+        print(e)
+        exit(1)
+
+if __name__ == "__main__":
+    config = load_config("Config/server.json")
     server = Server(config)
     server.run()
