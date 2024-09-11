@@ -46,6 +46,7 @@ class ClientClass():
                                 print(obj.get("map"))
                                 if mapData.name == obj.get("map"):
                                     self.game.currentMap = mapData
+                                    self.game.serverSize = obj.get("size")
                                     self.state = ClientState.PLAYING
                 case ClientState.PLAYING:
                     self.ui.menu = UI.Menu.GAME                      

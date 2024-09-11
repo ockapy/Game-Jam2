@@ -18,13 +18,17 @@ Exemple:
     2: {"pos": [847, 29]}
 }
 """
+import os,sys
 
-import socket
+sys.path.append(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'client'))
+
 import json
+import pygame, pytmx
 from enum import Enum
 from time import sleep, time
 from Player import Player
 from ServerConnection import ServerConnection
+from TmxMap import Map
 
 TARGET_TPS = 30
 BUFFER_SIZE = 1024
@@ -110,6 +114,14 @@ class Server:
         """Envoie le paquet pour le début de jeu"""
         packet = dict()
         packet["map"] = "Default"
+        packet["size"] = (800,600)
+
+        pygame.display.init()
+        pygame.display.set_mode((800,600))
+
+        self.load_maps()
+        self.colliders = self.load_map_rects(self.maps[0].data)
+
         self.server_connection.sendto_all_client(json.dumps(packet).encode("utf-8"))
         self.state = ServerState.PLAYING
 
@@ -143,6 +155,37 @@ class Server:
     def end_game(self) -> None:
         """Fini une partie avant d'en commencé une nouvelle"""
         pass
+
+    def load_maps(self):
+        self.maps = list()
+        directories = os.listdir("Map/Arenas")
+
+        for directory in directories:
+            filenames = next(os.walk("Map/Arenas/"+directory), (None, None, []))[2]
+        for file in filenames:
+            if file.endswith(".tmx"):
+                tmxMap = Map("Map/Arenas/"+directory+"/"+file)
+                tmxMap.name = file.removesuffix(".tmx")
+                self.maps.append(tmxMap)
+    
+    def load_map_rects(self, tmx_data):
+        coliders=[]
+        for layer in tmx_data.visible_layers:
+            if isinstance(layer, pytmx.TiledTileLayer):
+                for x, y, tile in layer.tiles():
+
+                    posX = (x*(tmx_data.tilewidth*2))+800
+                    posY = (y*(tmx_data.tileheight*2))+600
+
+                                        
+                    scaledTile =  pygame.transform.scale(tile,(tmx_data.tilewidth, tmx_data.tileheight))
+                    
+                    tileRect = scaledTile.get_rect()
+                    tileRect.x=posX
+                    tileRect.y=posY
+                    
+                    coliders.append(tileRect)
+        return coliders
 
 if __name__ == "__main__":
     config = {
