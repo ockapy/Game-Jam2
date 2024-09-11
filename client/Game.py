@@ -81,7 +81,7 @@ class Game:
             
     def render(self,screen):
         screen.fill((0,0,0))
-        self.currentMap.draw_map(screen)
+        self.currentMap.draw_map(screen,self.serverSize)
         for entity in self.entities.values():
             entity.render(screen)
 
