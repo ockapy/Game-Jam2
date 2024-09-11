@@ -122,6 +122,7 @@ class Server:
         pygame.display.set_mode((800,600))
 
         self.load_maps()
+        
         self.colliders = self.load_map_rects(self.maps[0].data)
 
         self.server_connection.sendto_all_client(json.dumps(packet).encode("utf-8"))
@@ -182,10 +183,9 @@ class Server:
             if isinstance(layer, pytmx.TiledTileLayer):
                 for x, y, tile in layer.tiles():
 
-                    posX = (x*(tmx_data.tilewidth*2))+windowXLimit
-                    posY = (y*(tmx_data.tileheight*2))+windowYLimit
+                    posX = (x*(tmx_data.tilewidth))+windowXLimit
+                    posY = (y*(tmx_data.tileheight))+windowYLimit
 
-                    print(posX)
 
                                         
                     scaledTile =  pygame.transform.scale(tile,(tmx_data.tilewidth, tmx_data.tileheight))

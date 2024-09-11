@@ -11,13 +11,15 @@ class Player:
     ATTACK_DELAY = 0.5 #seconde
     def __init__(self, server) -> None:
         self.collide_box = pygame.Rect(0, 0, 20, 30)
-        self.position = pygame.Vector2(160, 140)
+        self.position = pygame.Vector2(172,428)        
         self.velocity = pygame.Vector2(0, 0)
         self.acceleration = pygame.Vector2(0, 0)
         self.current_action = []
 
+
         self.other_force = []
         self.direction = pygame.Vector2(0, 0)
+        self.collide_flag = 0
 
         self.attack_rect = pygame.Rect(0, 0, 50, 50)
 
@@ -25,8 +27,6 @@ class Player:
 
         self.__prev_tick_jump = False
         self.__last_attack_time = time.time()
-
-        self.map_colliders = []
 
     def set_action(self, action: dict):
         self.current_action = action
@@ -40,6 +40,21 @@ class Player:
     def update(self, delta_time: float):
         self.collide_box.topleft = self.position.xy
 
+        if len(self.server.colliders) > 0:
+
+            if any(self.collide_box.colliderect(collision_rect) for collision_rect in self.server.colliders):
+                    self.collide_flag = 0
+                    print("collide")
+                    self.velocity.y = 0
+                    print("pos = " + str(self.position.xy))
+            else:
+                self.collide_flag = 1
+        else:
+            self.collide_flag = 0
+            self.velocity.y = 0
+            print("pos = " + str(self.position.xy))
+
+            
         has_jumped = 0
         movement_direction = pygame.Vector2(0, 0)
         if pygame.K_d in self.current_action or pygame.K_RIGHT in self.current_action:
@@ -94,16 +109,23 @@ class Player:
 
 
         # Methode de l'integration de verlet https://www.compadre.org/PICUP/resources/Numerical-Integration/
-        sum_of_force = (Player.GRAVITY) \
+        sum_of_force = (Player.GRAVITY*self.collide_flag) \
             + (Player.JUMP_FORCE * has_jumped) \
             + (Player.GROUND_ACCEL * movement_direction) \
             + sum(self.other_force, pygame.Vector2(0, 0))
+        
 
-        average_velocity = self.velocity + self.acceleration * delta_time / 2.0
+        print(sum_of_force)
 
-        self.position += average_velocity * delta_time
+        # average_velocity = self.velocity + self.acceleration * delta_time / 2.0
+
+        # self.position += average_velocity * delta_time
+        # self.acceleration = sum_of_force
+        # self.velocity = average_velocity + self.acceleration * delta_time / 2.0
+
         self.acceleration = sum_of_force
-        self.velocity = average_velocity + self.acceleration * delta_time / 2.0
+        self.position += self.velocity * delta_time
+        self.velocity += self.acceleration * delta_time
 
         if self.velocity.x >= Player.MAX_VELOCITY:
             self.velocity.x = Player.MAX_VELOCITY
@@ -111,11 +133,7 @@ class Player:
         elif self.velocity.x < -Player.MAX_VELOCITY:
             self.velocity.x = -Player.MAX_VELOCITY
         
-        if any(self.collide_box.colliderect(collision_rect) for collision_rect in self.server.colliders):
-            print("collide")
-            print(self.position)
-            self.position.y = 1026
-            self.velocity.y= 0
+
         #print("acc: ", self.acceleration, "\tvel", self.velocity)
         
         self.__reset_action()
@@ -125,7 +143,6 @@ class Player:
         if self.position.y >= 800 or abs(self.position.x) >= 900:
             pass
 
-        self.position = pygame.Vector2(160,460)
     
     def serialize(self) -> dict:
         return {"pos": [self.position.x, self.position.y]}

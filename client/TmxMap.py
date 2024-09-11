@@ -57,12 +57,15 @@ class Map :
 
                     posX = (x*self.data.tilewidth*scaleX)+windowXLimit
                     posY = (y*self.data.tileheight*scaleY)+windowYLimit
+
+                    posX2 = (x*self.data.tilewidth)+windowXLimit
+                    posY3 = (y*self.data.tileheight)+windowYLimit
                                         
                     scaledTile =  pygame.transform.scale(tile,(self.data.tilewidth*scaleX, self.data.tileheight*scaleY))
                     
                     tileRect = scaledTile.get_rect()
-                    tileRect.x=posX
-                    tileRect.y=posY
+                    tileRect.x=posX2
+                    tileRect.y=posY3
                     
                     self.colliders.append(tileRect)
 
