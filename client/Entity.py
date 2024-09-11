@@ -4,7 +4,7 @@ class Entity :
 
     def __init__(self , asset, x, y, direction) -> None:
         self.asset = pygame.image.load(asset).convert_alpha()
-        self.skin = self.asset.subsurface(pygame.Rect(0,0,16,32))
+        self.skin = self.asset.subsurface(pygame.Rect(0,0,32,48))
         self.rect = self.skin.get_rect()
         self.rect.x = x
         self.rect.y = y
@@ -59,9 +59,9 @@ class Entity :
     
     def animation_entity(self) -> None : 
         if self.direction == "right":
-            self.skin = self.asset.subsurface(pygame.Rect(16*(self.countSteps % 4),0,16,32))
+            self.skin = self.asset.subsurface(pygame.Rect(32*(self.countSteps % 4),0,32,48))
         elif self.direction == "left" : 
-            self.skin = pygame.transform.flip(self.asset.subsurface(pygame.Rect(16*(self.countSteps % 4),0,16,32)),180,0) 
+            self.skin = pygame.transform.flip(self.asset.subsurface(pygame.Rect(32*(self.countSteps % 4),0,32,48)),180,0) 
         self.countFrame += 1 
         if (self.countFrame % 16 == 15) : self.countSteps +=1
       

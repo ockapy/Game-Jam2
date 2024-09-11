@@ -12,38 +12,82 @@ class Menu(Enum):
     GAME=2
     SETTINGS=3
 
-class Button(pygame.sprite.Sprite):
-    def __init__(self,pos,dim,color,callback,group,text=None,textcolor="black" ,texture=None ,disable=False) -> None:
+class Event():
+    NONE=pygame.event.custom_type()
+
+
+class Label(pygame.sprite.Sprite):
+    def __init__(self,pos,dim,color,group,cb_input=None,text="",fontsize=32,textcolor="black",texture=None,hidden=False) -> None:
         super().__init__(group)
-        self.disable=disable
-        if callback!=None:
-                self.callback=callback[0]
-                self.callback_arg=callback[1]
-        
+        self.hidden=hidden
+
+        if cb_input!=None:
+            self.cb_input=cb_input[0]
+            self.cb_input_arg=cb_input[1]
+
         self.text=text
         self.textcolor=textcolor
+        self.pos=pos
 
         if texture !=None:
-            self.texture=pygame.image.load(texture)
+            self.texture = pygame.image.load(texture)
+            self.texture = pygame.transform.scale(self.texture,(dim[0],dim[1]))
         else :
             self.texture=pygame.Surface(dim)
             self.texture.fill(color)
 
-        self.image=self.texture.copy()
-        self.rect=self.image.get_rect()
-        self.rect.x=pos[0]
-        self.rect.y=pos[1]
+        self.rect=self.texture.get_rect()
 
-        font=pygame.font.Font(None, 32)
-        text_render=font.render(self.text,False,self.textcolor)
+        self.font=pygame.font.Font(None, fontsize)
+        text_render=self.font.render(self.text,False,self.textcolor)
+        self.image=self.texture.copy()
         self.image.blit(text_render,((self.rect.w-text_render.get_width() )/2,(self.rect.h-text_render.get_height() )/2))
+
+        ws=pygame.display.get_window_size()
+        self.rect.topleft=( (ws[0] *self.pos[0]/100 ) - self.rect.width/2,(ws[1] *self.pos[1]/100 ) - self.rect.height/2)
+
+    def update(self,event) -> None:
+
+        if self.cb_input!=None:
+            if self.cb_input_arg!=None:
+                self.text=str(self.cb_input(self.cb_input_arg))
+            else:
+                self.text=str(self.cb_input())
+            
+
+        text_render=self.font.render(self.text,False,self.textcolor)
+
+        self.image=self.texture.copy()
+        self.image.blit(text_render,((self.rect.w-text_render.get_width() )/2,(self.rect.h-text_render.get_height() )/2))
+
+        ws=pygame.display.get_window_size()
+        self.rect.topleft=( (ws[0] *self.pos[0]/100 ) - self.rect.width/2,(ws[1] *self.pos[1]/100 ) - self.rect.height/2)
+
+
+class Button(Label):
+    def __init__(self,pos,dim,color,group,callback,text="",fontsize=32,textcolor="black" ,texture=None ,disable=False) -> None:
+        super().__init__(pos,dim,color,group,None,text,fontsize,textcolor,texture)
+        if callback!=None:
+            self.callback=callback[0]
+            self.callback_arg=callback[1]
+
+        self.disable=disable
 
     def enable(self,bool=True):
         self.disable = not bool
 
-    def update(self,event) -> None:  #on click event
+    def update(self,event) -> None: 
 
-        if event.type == pygame.MOUSEBUTTONDOWN:
+        #position
+        ws=pygame.display.get_window_size()
+        self.rect.topleft=( (ws[0] *self.pos[0]/100 ) - self.rect.width/2,(ws[1] *self.pos[1]/100 ) - self.rect.height/2)
+
+        # if self.rect.collidepoint(pygame.mouse.get_pos()): # :over
+        #     self.image=self.
+        # else:
+        #     self.image=self.texture
+
+        if event.type == pygame.MOUSEBUTTONDOWN: #on click event
             if self.rect.collidepoint(pygame.mouse.get_pos()) and not self.disable:
                 if self.callback_arg!=None:
                     self.callback(self.callback_arg)
@@ -52,51 +96,72 @@ class Button(pygame.sprite.Sprite):
 
 class Input(Button):
         
-    def __init__(self,pos,dim,color,callback,group,text=None ,textcolor="grey",input_textcolor="black",texture=None,) -> None:
+    def __init__(self,pos,dim,color,group,callback,text=None,fontsize=32 ,textcolor="grey",input_textcolor="black",texture=None,texture_alt=None,) -> None:
+        super().__init__(pos,dim,color,group,None,text,fontsize,textcolor ,texture)
+
         self.focused=False
         self.input_text=""
         self.input_textcolor=input_textcolor
         self.callback=callback[0]
-        print(len(self.input_text))
 
-        super().__init__(pos,dim,color,None,group,text,textcolor ,texture)
+        if texture_alt !=None:
+            self.texture_alt = pygame.image.load(texture_alt)
+            self.texture_alt = pygame.transform.scale(self.texture_alt,(dim[0],dim[1]))
+        else :
+            self.texture_alt=pygame.Surface(dim)
+            self.texture_alt.fill(color)
+
     
     def update(self, event) -> None:
         #super().update(events)
-        
+
         #on click : set/unset focus
         if event.type == pygame.MOUSEBUTTONDOWN:
             if  self.rect.collidepoint(pygame.mouse.get_pos()):
                 self.focused=True
+                pygame.key.set_repeat(300,50)
             else:
                 self.focused=False
+                pygame.key.set_repeat(0)
+
+            self.render_text()
+
         # on key pressed
         if event.type == pygame.KEYDOWN and self.focused:
             if event.key == pygame.K_BACKSPACE:
+
                 self.input_text = self.input_text[:-1]
             elif event.key == pygame.K_RETURN :
                 self.callback()
             else:   
                 self.input_text += event.unicode
+
+            self.render_text()
+        
+        ws=pygame.display.get_window_size()
+        self.rect.topleft=( (ws[0] *self.pos[0]/100 ) - self.rect.width/2,(ws[1] *self.pos[1]/100 ) - self.rect.height/2)
+
     
-            font=pygame.font.Font(None, 32) # font option (todo : set global setting)
-            text_render=font.render((self.input_text if len(self.input_text)!=0  else self.text),False,self.input_textcolor if len(self.input_text)!=0  else self.textcolor)
-
-            self.image=self.texture.copy()
-
+    def render_text(self):
+            if self.focused:  #select input texture
+                self.image=self.texture_alt.copy()
+            else:
+                self.image=self.texture.copy()                         
+            #render the text 
+            text_render=self.font.render((self.input_text if len(self.input_text)!=0 or self.focused else self.text),False,self.input_textcolor if len(self.input_text)!=0  else self.textcolor)
             padding=(self.rect.h-text_render.get_height() )/2
-
             if text_render.get_width() > self.rect.w - 2*padding: #handle text overflow
                 self.image.blit(text_render,(-text_render.get_width() + self.rect.w - padding,padding))
             else:
                 self.image.blit(text_render,(padding,padding))
+
 
     def get_text(self):
         return self.input_text
 
 class Audio_Manager():
     def __init__(self) -> None:
-        self.ch_volume=1.0
+        self.sound_volume=1.0
         self.music_volume=1.0
         self.mute=False
 
@@ -109,8 +174,10 @@ class Audio_Manager():
         # except:
         #     pass
 
-    def get_sound_volume(self):
-        return self.sound_volume
+    def get_sound_volume(self,rounded=False):
+        if not rounded:
+            return self.sound_volume
+        return round(self.sound_volume*10)
 
     def set_sound_volume(self,volume):
         if volume >=0 and volume<=1:
@@ -129,8 +196,10 @@ class Audio_Manager():
     def stop_sound(self,id):    
         pass
 
-    def get_music_volume(self):
-        return self.music_volume
+    def get_music_volume(self,rounded=False):
+        if not rounded:
+            return self.music_volume
+        return round( self.music_volume*10)
     
     def set_music_volume(self,volume):
         if volume >=0 and volume<=1:
@@ -166,6 +235,8 @@ class UI():
 
     def set_menu(self, menu):
         self.menu=menu
+        pygame.event.post(pygame.event.Event(Event.NONE))
+        self.handle_event()
 
     def quit_connect(self):
         self.menu=Menu.MAIN
@@ -180,27 +251,28 @@ class UI():
 
     #init objects to display on the spec. menu
     def init_main(self):
-        Button((SCREEN_WIDTH/3,SCREEN_HEIGHT/2),(150,40),"black",(self.set_menu,Menu.CONNECTION),self.main_sprites,"Play !","yellow")
-        Button((SCREEN_WIDTH/3,SCREEN_HEIGHT/1.5),(150,40),"black",(self.set_menu,Menu.SETTINGS),self.main_sprites,"SETTINGS","yellow")
-
+        Button((50,40),(150,40),"black",self.main_sprites,(self.set_menu,Menu.CONNECTION),"Play !",32,"yellow","./Assets/UI/button1.png")
+        Button((50,50),(150,40),"black",self.main_sprites,(self.set_menu,Menu.SETTINGS),"Settings",32,"yellow","./Assets/UI/button1.png")
 
     def init_connection(self):
-        Button((SCREEN_WIDTH/8,SCREEN_HEIGHT/8),(150,40),"red",(self.quit_connect,None),self.connection_sprites,"back")
+        Button((10,10),(150,40),"red",self.connection_sprites,(self.quit_connect,None),"back",texture="./Assets/UI/button1.png")
         #address input
-        self.input["ADDRESS"] = Input((SCREEN_WIDTH/3,SCREEN_HEIGHT/3),(200,40),"red",(self.connect_to_serverip,None),self.connection_sprites,"IP Address")
-        Button((SCREEN_WIDTH*2/3,SCREEN_HEIGHT/3),(150,40),"red",(self.connect_to_serverip,None),self.connection_sprites,"Connect")
+        self.input["ADDRESS"] = Input((35,50),(260,40),"red",self.connection_sprites,(self.connect_to_serverip,None),"IP Address",texture="./Assets/UI/textinput-off1.png",texture_alt= "./Assets/UI/textinput-on1.png")
+        Button((65,50),(150,40),"red",self.connection_sprites,(self.connect_to_serverip,None),"Connect",texture="./Assets/UI/button1.png")
 
-        self.startbutton=Button((SCREEN_WIDTH /1.5,SCREEN_HEIGHT/2),(150,40),"red",(self.start_game,None),self.connection_sprites,"Start !",disable=True)
+        self.startbutton=Button((60,60),(150,40),"red",self.connection_sprites,(self.start_game,None),"Start !",texture="./Assets/UI/button1.png",disable=True)
       
     def init_settings(self):
-        Button((SCREEN_WIDTH/8,SCREEN_HEIGHT/8),(150,40),"red",(self.set_menu,Menu.MAIN),self.settings_sprites,"back")
+        Button((10,10),(150,40),"red",self.settings_sprites,(self.set_menu,Menu.MAIN),"back",texture="./Assets/UI/button1.png")
         #music
-        Button((SCREEN_WIDTH/6,SCREEN_HEIGHT/3),(50,50),"red",(self.audio_manager.decrease_music_volume,None),self.settings_sprites,"- m")
-        Button((SCREEN_WIDTH/3,SCREEN_HEIGHT/3),(50,50),"red",(self.audio_manager.increase_music_volume,None),self.settings_sprites,"+ m")
+        Button((40,30),(60,50),"red",self.settings_sprites,(self.audio_manager.decrease_music_volume,None),"-",texture="./Assets/UI/button1.png")
+        Button((60,30),(60,50),"red",self.settings_sprites,(self.audio_manager.increase_music_volume,None),"+",texture="./Assets/UI/button1.png")
+        Label((50,30),(50,50),"red",self.settings_sprites,(self.audio_manager.get_music_volume,True))
         #sound
-        Button((SCREEN_WIDTH/6,SCREEN_HEIGHT/2),(50,50),"red",(self.audio_manager.decrease_sound_volume,None),self.settings_sprites,"- m")
-        Button((SCREEN_WIDTH/3,SCREEN_HEIGHT/2),(50,50),"red",(self.audio_manager.increase_sound_volume,None),self.settings_sprites,"+ m")
-      
+        Button((40,40),(60,50),"red",self.settings_sprites,(self.audio_manager.decrease_sound_volume,None),"-",texture="./Assets/UI/button1.png")
+        Button((60,40),(60,50),"red",self.settings_sprites,(self.audio_manager.increase_sound_volume,None),"+",texture="./Assets/UI/button1.png")
+        Label((50,40),(50,50),"red",self.settings_sprites,(self.audio_manager.get_sound_volume,True))
+
 
     def __init__(self, client ) -> None:
 
@@ -210,7 +282,7 @@ class UI():
         self.audio_manager=Audio_Manager()
         self.menu=Menu.MAIN #actual menu displayed
 
-        self.screen = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT), pygame.RESIZABLE | pygame.SCALED)
+        self.screen = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT), pygame.RESIZABLE )
         self.clock= pygame.time.Clock()
 
 
@@ -219,6 +291,8 @@ class UI():
         self.connection_sprites = pygame.sprite.Group()
         self.settings_sprites = pygame.sprite.Group()
         self.input={}
+
+        self.background=pygame.image.load("./Assets/UI/background1.png")
 
         self.init_main()
         self.init_connection()
@@ -246,11 +320,9 @@ class UI():
         return True
 
     def render_main(self):
-        self.screen.fill("green")
         self.main_sprites.draw(self.screen)
 
     def render_connection(self):
-        self.screen.fill("blue")
         self.connection_sprites.draw(self.screen)
 
         if self.client.get_state() == Client.ClientState.WAIT_CON:
@@ -290,22 +362,16 @@ class UI():
 
                 surface.blit(text,((surface.get_width()-text.get_width())/2,(surface.get_height()-text.get_height())/2))
 
-            self.screen.blit(surface,(SCREEN_WIDTH*0.4,SCREEN_HEIGHT*0.5))
+            self.screen.blit(surface,(pygame.display.get_window_size()[0]*0.30,pygame.display.get_window_size()[1]*0.6))
 
     def render_settings(self):
-        self.screen.fill("blue")
         self.settings_sprites.draw(self.screen)     
-
-        music_volume_surface=pygame.Surface((50,50))
-        music_volume_surface.fill("grey")
-        
-        font=pygame.font.Font(None, 25) # font option (todo : set global setting)
-        music_volume_text=font.render(str(round(self.audio_manager.music_volume*10)),False,"black")
-        music_volume_surface.blit(music_volume_text,((music_volume_surface.get_width()-music_volume_text.get_width())/2,(music_volume_surface.get_height()-music_volume_text.get_height())/2))
-        self.screen.blit(music_volume_surface,(SCREEN_WIDTH/4,SCREEN_HEIGHT/3))
 
     def render(self):
         # Rendu varié
+        self.screen.fill("azure")
+        self.screen.blit(pygame.transform.scale(self.background,pygame.display.get_window_size()),(0,0))
+
         match self.menu :
             case Menu.MAIN:
                 self.render_main()
