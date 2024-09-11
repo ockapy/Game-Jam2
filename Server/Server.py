@@ -64,7 +64,7 @@ class Server:
         return self.next_net_id
 
     def create_player(self, net_id:int) -> None:
-        self.entities[net_id] = Player()
+        self.entities[net_id] = Player(self)
     
     def run(self) -> None:
         """Boucle principale du server"""
