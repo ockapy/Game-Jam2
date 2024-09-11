@@ -23,8 +23,9 @@ class Game:
         
         
     def init_screen(self, width: int, height: int) -> pygame.Surface:
-        pygame.display.init()
-        screen = pygame.display.set_mode((width, height),  pygame.RESIZABLE)
+    #    pygame.display.init()
+    #    screen = pygame.display.set_mode((width, height),  pygame.RESIZABLE)
+        screen =pygame.display.get_surface()
         return screen
 
     def initMaps(self,path) -> list:

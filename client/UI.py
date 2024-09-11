@@ -3,24 +3,27 @@ import pygame
 
 import Client
 
-SCREEN_HEIGHT = 600
-SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 720
+SCREEN_WIDTH = 1280
 
 class Menu(Enum):
     MAIN=0
     CONNECTION=1
     GAME=2
     SETTINGS=3
+    CREDITS=4
+    CONTROLS=5
 
-class Event():
-    NONE=pygame.event.custom_type()
+class CustomEvent():
+    MENU=pygame.event.custom_type()
 
 
 class Label(pygame.sprite.Sprite):
-    def __init__(self,pos,dim,color,group,cb_input=None,text="",fontsize=32,textcolor="black",texture=None,hidden=False) -> None:
+    def __init__(self,pos,dim,color,group,cb_input=None,text="",fontsize=32,textcolor="black",texture=None,hidden=False,font=None) -> None:
         super().__init__(group)
         self.hidden=hidden
 
+        self.cb_input=cb_input
         if cb_input!=None:
             self.cb_input=cb_input[0]
             self.cb_input_arg=cb_input[1]
@@ -30,15 +33,15 @@ class Label(pygame.sprite.Sprite):
         self.pos=pos
 
         if texture !=None:
-            self.texture = pygame.image.load(texture)
+            self.texture = pygame.image.load(texture).convert_alpha()
             self.texture = pygame.transform.scale(self.texture,(dim[0],dim[1]))
         else :
-            self.texture=pygame.Surface(dim)
+            self.texture=pygame.Surface(dim,pygame.SRCALPHA)
             self.texture.fill(color)
 
         self.rect=self.texture.get_rect()
 
-        self.font=pygame.font.Font(None, fontsize)
+        self.font=pygame.font.Font(font, fontsize)
         text_render=self.font.render(self.text,False,self.textcolor)
         self.image=self.texture.copy()
         self.image.blit(text_render,((self.rect.w-text_render.get_width() )/2,(self.rect.h-text_render.get_height() )/2))
@@ -54,19 +57,24 @@ class Label(pygame.sprite.Sprite):
             else:
                 self.text=str(self.cb_input())
             
+            
+
+
 
         text_render=self.font.render(self.text,False,self.textcolor)
 
         self.image=self.texture.copy()
         self.image.blit(text_render,((self.rect.w-text_render.get_width() )/2,(self.rect.h-text_render.get_height() )/2))
 
+        #if event.type ==pygame.VIDEORESIZE:
+            #position
         ws=pygame.display.get_window_size()
         self.rect.topleft=( (ws[0] *self.pos[0]/100 ) - self.rect.width/2,(ws[1] *self.pos[1]/100 ) - self.rect.height/2)
 
 
 class Button(Label):
-    def __init__(self,pos,dim,color,group,callback,text="",fontsize=32,textcolor="black" ,texture=None ,disable=False) -> None:
-        super().__init__(pos,dim,color,group,None,text,fontsize,textcolor,texture)
+    def __init__(self,pos,dim,color,group,callback,text="",fontsize=32,textcolor="black" ,texture=None ,disable=False,font=None) -> None:
+        super().__init__(pos,dim,color,group,None,text,fontsize,textcolor,texture,font=font)
         if callback!=None:
             self.callback=callback[0]
             self.callback_arg=callback[1]
@@ -76,18 +84,21 @@ class Button(Label):
     def enable(self,bool=True):
         self.disable = not bool
 
-    def update(self,event) -> None: 
+    def update(self,event) -> None:
 
-        #position
-        ws=pygame.display.get_window_size()
-        self.rect.topleft=( (ws[0] *self.pos[0]/100 ) - self.rect.width/2,(ws[1] *self.pos[1]/100 ) - self.rect.height/2)
 
         # if self.rect.collidepoint(pygame.mouse.get_pos()): # :over
         #     self.image=self.
         # else:
         #     self.image=self.texture
+        if event.type ==pygame.VIDEORESIZE or event.type == CustomEvent.MENU:
+            #position
+            ws=pygame.display.get_window_size()
+            self.rect.topleft=( (ws[0] *self.pos[0]/100 ) - self.rect.width/2,(ws[1] *self.pos[1]/100 ) - self.rect.height/2)
+
 
         if event.type == pygame.MOUSEBUTTONDOWN: #on click event
+
             if self.rect.collidepoint(pygame.mouse.get_pos()) and not self.disable:
                 if self.callback_arg!=None:
                     self.callback(self.callback_arg)
@@ -95,9 +106,9 @@ class Button(Label):
                     self.callback()
 
 class Input(Button):
-        
-    def __init__(self,pos,dim,color,group,callback,text=None,fontsize=32 ,textcolor="grey",input_textcolor="black",texture=None,texture_alt=None,) -> None:
-        super().__init__(pos,dim,color,group,None,text,fontsize,textcolor ,texture)
+
+    def __init__(self,pos,dim,color,group,callback,text=None,fontsize=32 ,textcolor="grey",input_textcolor="black",texture=None,texture_alt=None,font=None) -> None:
+        super().__init__(pos,dim,color,group,None,text,fontsize,textcolor ,texture,font=font)
 
         self.focused=False
         self.input_text=""
@@ -105,13 +116,13 @@ class Input(Button):
         self.callback=callback[0]
 
         if texture_alt !=None:
-            self.texture_alt = pygame.image.load(texture_alt)
+            self.texture_alt = pygame.image.load(texture_alt).convert_alpha()
             self.texture_alt = pygame.transform.scale(self.texture_alt,(dim[0],dim[1]))
         else :
             self.texture_alt=pygame.Surface(dim)
             self.texture_alt.fill(color)
 
-    
+
     def update(self, event) -> None:
         #super().update(events)
 
@@ -133,27 +144,28 @@ class Input(Button):
                 self.input_text = self.input_text[:-1]
             elif event.key == pygame.K_RETURN :
                 self.callback()
-            else:   
+            else:
                 self.input_text += event.unicode
 
             self.render_text()
-        
-        ws=pygame.display.get_window_size()
-        self.rect.topleft=( (ws[0] *self.pos[0]/100 ) - self.rect.width/2,(ws[1] *self.pos[1]/100 ) - self.rect.height/2)
 
-    
+        if event.type ==pygame.VIDEORESIZE or CustomEvent.MENU:
+            #position
+            ws=pygame.display.get_window_size()
+            self.rect.topleft=( (ws[0] *self.pos[0]/100 ) - self.rect.width/2,(ws[1] *self.pos[1]/100 ) - self.rect.height/2)
+
     def render_text(self):
             if self.focused:  #select input texture
                 self.image=self.texture_alt.copy()
             else:
-                self.image=self.texture.copy()                         
-            #render the text 
+                self.image=self.texture.copy()
+            #render the text
             text_render=self.font.render((self.input_text if len(self.input_text)!=0 or self.focused else self.text),False,self.input_textcolor if len(self.input_text)!=0  else self.textcolor)
             padding=(self.rect.h-text_render.get_height() )/2
             if text_render.get_width() > self.rect.w - 2*padding: #handle text overflow
                 self.image.blit(text_render,(-text_render.get_width() + self.rect.w - padding,padding))
             else:
-                self.image.blit(text_render,(padding,padding))
+                self.image.blit(text_render,(padding+10,padding))
 
 
     def get_text(self):
@@ -235,7 +247,7 @@ class UI():
 
     def set_menu(self, menu):
         self.menu=menu
-        pygame.event.post(pygame.event.Event(Event.NONE))
+        pygame.event.post(pygame.event.Event(CustomEvent.MENU))
         self.handle_event()
 
     def quit_connect(self):
@@ -249,29 +261,63 @@ class UI():
         self.menu=Menu.GAME
         self.client.start_game()
 
+    def get_fps(self):
+        return round(self.clock.get_fps())
+
     #init objects to display on the spec. menu
     def init_main(self):
-        Button((50,40),(150,40),"black",self.main_sprites,(self.set_menu,Menu.CONNECTION),"Play !",32,"yellow","./Assets/UI/button1.png")
-        Button((50,50),(150,40),"black",self.main_sprites,(self.set_menu,Menu.SETTINGS),"Settings",32,"yellow","./Assets/UI/button1.png")
+        Label((50,20),(500,80),(255,255,255,0),self.main_sprites,text="WindBlows",fontsize=80,font=self.font)
+        Button((50,40),(150,40),(255,255,255,0),self.main_sprites,(self.set_menu,Menu.CONNECTION),"Play !",32,"yellow","./Assets/UI/button1.png",font=self.font)
+        Button((50,50),(150,40),(255,255,255,0),self.main_sprites,(self.set_menu,Menu.SETTINGS),"Settings",32,"yellow","./Assets/UI/button1.png",font=self.font)
+        Button((50,60),(150,40),(255,255,255,0),self.main_sprites,(self.set_menu,Menu.CONTROLS),"Controls",32,"yellow","./Assets/UI/button1.png",font=self.font)        
+        Button((50,70),(150,40),(255,255,255,0),self.main_sprites,(self.set_menu,Menu.CREDITS),"Credits",32,"yellow","./Assets/UI/button1.png",font=self.font)
 
     def init_connection(self):
-        Button((10,10),(150,40),"red",self.connection_sprites,(self.quit_connect,None),"back",texture="./Assets/UI/button1.png")
+        Label((50,20),(400,40),(255,255,255,0),self.connection_sprites,text="Connect to a server",fontsize=50,font=self.font)
+        Button((10,10),(150,60),(255,255,255,0),self.connection_sprites,(self.quit_connect,None),texture="./Assets/UI/arrow1.png",font=self.font)
         #address input
-        self.input["ADDRESS"] = Input((35,50),(260,40),"red",self.connection_sprites,(self.connect_to_serverip,None),"IP Address",texture="./Assets/UI/textinput-off1.png",texture_alt= "./Assets/UI/textinput-on1.png")
-        Button((65,50),(150,40),"red",self.connection_sprites,(self.connect_to_serverip,None),"Connect",texture="./Assets/UI/button1.png")
+        self.input["ADDRESS"] = Input((35,50),(260,40),(255,255,255,0),self.connection_sprites,(self.connect_to_serverip,None),"IP Address",texture="./Assets/UI/textinput-off1.png",texture_alt= "./Assets/UI/textinput-on1.png",font=self.font)
+        Button((65,50),(150,40),(255,255,255,0),self.connection_sprites,(self.connect_to_serverip,None),"Connect",texture="./Assets/UI/button1.png",font=self.font)
 
-        self.startbutton=Button((60,60),(150,40),"red",self.connection_sprites,(self.start_game,None),"Start !",texture="./Assets/UI/button1.png",disable=True)
-      
+        self.startbutton=Button((60,60),(150,40),(255,255,255,0),self.connection_sprites,(self.start_game,None),"Start !",texture="./Assets/UI/button1.png",disable=True,font=self.font)
+
     def init_settings(self):
-        Button((10,10),(150,40),"red",self.settings_sprites,(self.set_menu,Menu.MAIN),"back",texture="./Assets/UI/button1.png")
+        Label((50,50),(550,550),"azure",self.settings_sprites,texture="./Assets/UI/backplate1.png")
+
+        Label((50,20),(160,40),(255,255,255,0),self.settings_sprites,text="Settings",fontsize=50,font=self.font)
+        Button((10,10),(150,60),(255,255,255,0),self.settings_sprites,(self.set_menu,Menu.MAIN),texture="./Assets/UI/arrow1.png",font=self.font)
         #music
-        Button((40,30),(60,50),"red",self.settings_sprites,(self.audio_manager.decrease_music_volume,None),"-",texture="./Assets/UI/button1.png")
-        Button((60,30),(60,50),"red",self.settings_sprites,(self.audio_manager.increase_music_volume,None),"+",texture="./Assets/UI/button1.png")
-        Label((50,30),(50,50),"red",self.settings_sprites,(self.audio_manager.get_music_volume,True))
+        Label((50,30),(160,40),(255,255,255,0),self.settings_sprites,text="Music",fontsize=32,font=self.font)
+        Button((40,35),(60,50),(255,255,255,0),self.settings_sprites,(self.audio_manager.decrease_music_volume,None),"-",texture="./Assets/UI/button1.png",font=self.font)
+        Button((60,35),(60,50),(255,255,255,0),self.settings_sprites,(self.audio_manager.increase_music_volume,None),"+",texture="./Assets/UI/button1.png",font=self.font)
+        Label((50,35),(50,50),(255,255,255,0),self.settings_sprites,(self.audio_manager.get_music_volume,True),font=self.font)
         #sound
-        Button((40,40),(60,50),"red",self.settings_sprites,(self.audio_manager.decrease_sound_volume,None),"-",texture="./Assets/UI/button1.png")
-        Button((60,40),(60,50),"red",self.settings_sprites,(self.audio_manager.increase_sound_volume,None),"+",texture="./Assets/UI/button1.png")
-        Label((50,40),(50,50),"red",self.settings_sprites,(self.audio_manager.get_sound_volume,True))
+        Label((50,40),(160,40),(255,255,255,0),self.settings_sprites,text="Sounds",fontsize=32,font=self.font)
+        Button((40,45),(60,50),(255,255,255,0),self.settings_sprites,(self.audio_manager.decrease_sound_volume,None),"-",texture="./Assets/UI/button1.png",font=self.font)
+        Button((60,45),(60,50),(255,255,255,0),self.settings_sprites,(self.audio_manager.increase_sound_volume,None),"+",texture="./Assets/UI/button1.png",font=self.font)
+        Label((50,45),(50,50),(255,255,255,0),self.settings_sprites,(self.audio_manager.get_sound_volume,True),font=self.font)
+
+        
+    def init_credits(self):
+        Label((50,50),(550,550),(255,255,255,100),self.credits_sprites,texture="./Assets/UI/backplate1.png")
+        Label((50,20),(155,40),(255,255,255,0),self.credits_sprites,text="Credits",fontsize=50,font=self.font)
+        Button((10,10),(150,60),(255,255,255,0),self.credits_sprites,(self.set_menu,Menu.MAIN),texture="./Assets/UI/arrow1.png",font=self.font)
+        Label((50,30),(450,40),(255,255,255,0),self.credits_sprites,text="Created and Developed by",fontsize=40,font=self.font)
+        Label((50,35),(500,40),(255,255,255,0),self.credits_sprites,text="Maxime, Romain, Clement, Gabin & Noe",fontsize=32,font=self.font)
+        Label((50,41),(400,45),(255,255,255,0),self.credits_sprites,text="Graphic Designs by",fontsize=40,font=self.font)
+        Label((50,46),(400,50),(255,255,255,0),self.credits_sprites,text="Romain, Gabin & Noe",fontsize=32,font=self.font)
+        Label((50,52),(400,45),(255,255,255,0),self.credits_sprites,text="Sound Designs by",fontsize=40,font=self.font)
+        Label((50,57),(400,50),(255,255,255,0),self.credits_sprites,text="Clement",fontsize=32,font=self.font)
+        Label((50,63),(400,45),(255,255,255,0),self.credits_sprites,text="Extras",fontsize=40,font=self.font)
+        Label((50,68),(400,50),(255,255,255,0),self.credits_sprites,text="Font (m6x11) by Daniel Linssen",fontsize=32,font=self.font)
+
+    def init_controls(self):
+        Label((50,20),(170,40),(255,255,255,0),self.controls_sprites,text="Controls",fontsize=50,font=self.font)
+        Button((10,10),(150,60),(255,255,255,0),self.controls_sprites,(self.set_menu,Menu.MAIN),texture="./Assets/UI/arrow1.png",font=self.font)
+        Label((50,60),(300,200),(255,255,255,100),self.controls_sprites,texture=None)
+
+    def init_over(self):
+        Label((90,10),(70,50),(255,255,255,200),self.over_sprites,(self.get_fps,None),font=self.font)
 
 
     def __init__(self, client ) -> None:
@@ -287,26 +333,41 @@ class UI():
 
 
         #objects group by menu
+        self.over_sprites=pygame.sprite.Group()
         self.main_sprites = pygame.sprite.Group()
         self.connection_sprites = pygame.sprite.Group()
         self.settings_sprites = pygame.sprite.Group()
+        self.credits_sprites = pygame.sprite.Group()
+        self.controls_sprites= pygame.sprite.Group()
         self.input={}
 
-        self.background=pygame.image.load("./Assets/UI/background1.png")
+        self.font="./Assets/Fonts/m6x11.ttf"
+        self.background=pygame.image.load("./Assets/UI/background1.png").convert()
+        self.scaled_background=pygame.transform.scale(self.background,pygame.display.get_window_size())
 
         self.init_main()
         self.init_connection()
         self.init_settings()
+        self.init_controls()
+        self.init_credits()
+        self.init_over()
 
         #self.audio_manager.proto_play_music()
 
 
     def handle_event(self) -> bool :
         events = pygame.event.get()
+        self.over_sprites.update(None)
+
+
         for event in events:
             if event.type == pygame.QUIT:
                 return False
-            
+
+
+            if event.type == pygame.VIDEORESIZE:
+                self.scaled_background=pygame.transform.scale(self.background,pygame.display.get_window_size())
+
             match self.menu :
                 case Menu.MAIN:
                     self.main_sprites.update(event)
@@ -314,9 +375,13 @@ class UI():
                     self.connection_sprites.update(event)
                 case Menu.SETTINGS:
                     self.settings_sprites.update(event)
+                case Menu.CREDITS:
+                    self.credits_sprites.update(event)
+                case Menu.CONTROLS:
+                    self.controls_sprites.update(event)
                 case Menu.GAME:
                     pass
-                    
+
         return True
 
     def render_main(self):
@@ -342,9 +407,9 @@ class UI():
                     font=pygame.font.Font(None, 25) # font option (todo : set global setting)
 
                     text=font.render(player,False,"black")
-                    
+
                     srfce.blit(text,((srfce.get_height()-text.get_height())/2,(srfce.get_height()-text.get_height())/2))
-                    
+
                     surface.blit(srfce,(0,y))
                     y+=40
 
@@ -365,12 +430,18 @@ class UI():
             self.screen.blit(surface,(pygame.display.get_window_size()[0]*0.30,pygame.display.get_window_size()[1]*0.6))
 
     def render_settings(self):
-        self.settings_sprites.draw(self.screen)     
+        self.settings_sprites.draw(self.screen)
+
+    def render_credits(self):
+        self.credits_sprites.draw(self.screen)
+
+    def render_controls(self):
+        self.controls_sprites.draw(self.screen)
 
     def render(self):
         # Rendu varié
         self.screen.fill("azure")
-        self.screen.blit(pygame.transform.scale(self.background,pygame.display.get_window_size()),(0,0))
+        self.screen.blit(self.scaled_background,(0,0))
 
         match self.menu :
             case Menu.MAIN:
@@ -379,12 +450,15 @@ class UI():
                 self.render_connection()
             case Menu.SETTINGS:
                 self.render_settings()
+            case Menu.CREDITS:
+                self.render_credits()
+            case Menu.CONTROLS:
+                self.render_controls()
             case Menu.GAME:
                 self.client.game.render(self.screen)
                 pass
 
+        self.over_sprites.draw(self.screen)
         pygame.display.flip()
 
-        self.clock.tick(60) #max x loop per second
-
-        
+        self.clock.tick(10) #max x loop per second
