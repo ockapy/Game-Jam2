@@ -56,7 +56,6 @@ class Game:
             self.update_entities(repl_packet)
 
     def update_entities(self, replication_packet):
-        print(f"{replication_packet=}")
         for i in json.loads(replication_packet).keys():
             packet = json.loads(replication_packet)
             x = packet.get(str(i)).get("pos")[0]
@@ -83,7 +82,7 @@ class Game:
         screen.fill((0,0,0))
         self.currentMap.draw_map(screen,self.serverSize)
         for entity in self.entities.values():
-            entity.render(screen)
+            entity.render(screen,self.serverSize)
 
 
 

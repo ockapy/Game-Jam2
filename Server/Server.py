@@ -58,6 +58,8 @@ class Server:
         self.next_net_id = 0
 
         self.delta_time = 0
+
+        self.colliders = []
     
     def new_net_id(self) -> int:
         self.next_net_id += 1
@@ -170,12 +172,20 @@ class Server:
     
     def load_map_rects(self, tmx_data):
         coliders=[]
+
+
+
+        windowXLimit = 400 - ((tmx_data.width / 2) * tmx_data.tilewidth )
+        windowYLimit = 300 - ((tmx_data.height / 2) * tmx_data.tileheight)
+
         for layer in tmx_data.visible_layers:
             if isinstance(layer, pytmx.TiledTileLayer):
                 for x, y, tile in layer.tiles():
 
-                    posX = (x*(tmx_data.tilewidth*2))+800
-                    posY = (y*(tmx_data.tileheight*2))+600
+                    posX = (x*(tmx_data.tilewidth*2))+windowXLimit
+                    posY = (y*(tmx_data.tileheight*2))+windowYLimit
+
+                    print(posX)
 
                                         
                     scaledTile =  pygame.transform.scale(tile,(tmx_data.tilewidth, tmx_data.tileheight))
@@ -190,7 +200,7 @@ class Server:
 if __name__ == "__main__":
     config = {
         "address": ("127.0.0.1", 9999),
-        "num_player": 2
+        "num_player": 1
     }
     server = Server(config)
     server.run()

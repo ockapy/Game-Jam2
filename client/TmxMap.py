@@ -41,8 +41,12 @@ class Map :
             clientX=screen.get_width() 
             clientY=screen.get_height()
 
+            
+
             scaleX = clientX / serverSize[0]
             scaleY = clientY / serverSize[1]
+
+
 
             windowXLimit = clientX / 2 - ((self.data.width / 2) * self.data.tilewidth * scaleX)
             windowYLimit = clientY / 2 - ((self.data.height / 2) * self.data.tileheight * scaleY)
@@ -53,9 +57,6 @@ class Map :
 
                     posX = (x*self.data.tilewidth*scaleX)+windowXLimit
                     posY = (y*self.data.tileheight*scaleY)+windowYLimit
-
-                    
-
                                         
                     scaledTile =  pygame.transform.scale(tile,(self.data.tilewidth*scaleX, self.data.tileheight*scaleY))
                     

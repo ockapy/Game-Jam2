@@ -5,7 +5,7 @@ class Entity :
     def __init__(self , asset, x, y, direction) -> None:
         self.asset = pygame.image.load(asset).convert_alpha()
         self.skin = self.asset.subsurface(pygame.Rect(0,0,32,48))
-        self.rect = self.skin.get_rect()
+        self.rect = pygame.Rect(0,0,20,30)
         self.rect.x = x
         self.rect.y = y
         self.direction = direction
@@ -22,7 +22,7 @@ class Entity :
     def get_asset(self) -> pygame.Surface :
         return self.asset
 
-    def get_position(self) -> tuple[int,int]: 
+    def get_position(self,server_size) -> tuple[int,int]:        
         return (self.rect.x, self.rect.y)
     
     def set_position(self, x, y) -> None : 
@@ -66,9 +66,21 @@ class Entity :
         if (self.countFrame % 16 == 15) : self.countSteps +=1
       
     
-    def render(self, screen):
-        skin = pygame.transform.scale(self.skin, (self.skin.get_width() * 2, self.skin.get_height()*2))
-        screen.blit(skin, self.get_position())
+    def render(self, screen,server_size):
+
+        scaleX = screen.get_width() / server_size[0]
+        scaleY = screen.get_height() / server_size[1]
+
+
+        skin = pygame.transform.scale(self.skin, (self.rect.w*scaleX,self.rect.h*scaleY))
+
+        posX = self.rect.x * scaleX
+        posY = self.rect.y * scaleY        
+
+        screen.blit(skin, (posX,posY))
+
+        pygame.draw.rect(screen, (255, 0, 0), pygame.Rect(posX,posY,self.rect.w*scaleX,self.rect.h*scaleY), 1)
+
 
 
     def moveTo(self) : 

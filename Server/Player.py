@@ -10,8 +10,8 @@ class Player:
 
     ATTACK_DELAY = 0.5 #seconde
     def __init__(self, server) -> None:
-        self.collide_box = pygame.Rect(400, 400, 32, 64)
-        self.position = pygame.Vector2(400, 400)
+        self.collide_box = pygame.Rect(0, 0, 20, 30)
+        self.position = pygame.Vector2(160, 140)
         self.velocity = pygame.Vector2(0, 0)
         self.acceleration = pygame.Vector2(0, 0)
         self.current_action = []
@@ -25,6 +25,8 @@ class Player:
 
         self.__prev_tick_jump = False
         self.__last_attack_time = time.time()
+
+        self.map_colliders = []
 
     def set_action(self, action: dict):
         self.current_action = action
@@ -109,11 +111,11 @@ class Player:
         elif self.velocity.x < -Player.MAX_VELOCITY:
             self.velocity.x = -Player.MAX_VELOCITY
         
-        # Collision
-        # if self.position.y >= 500:
-        #     self.position.y = 500
-        #     self.velocity.y = 0
-        
+        if any(self.collide_box.colliderect(collision_rect) for collision_rect in self.server.colliders):
+            print("collide")
+            print(self.position)
+            self.position.y = 1026
+            self.velocity.y= 0
         #print("acc: ", self.acceleration, "\tvel", self.velocity)
         
         self.__reset_action()
@@ -121,10 +123,9 @@ class Player:
 
         #LA MORT
         if self.position.y >= 800 or abs(self.position.x) >= 900:
-            print("Vous êtes tombé !")
-            
+            pass
 
-        
+        self.position = pygame.Vector2(160,460)
     
     def serialize(self) -> dict:
         return {"pos": [self.position.x, self.position.y]}
