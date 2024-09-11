@@ -60,7 +60,7 @@ class Server:
         return self.next_net_id
 
     def create_player(self, net_id:int) -> None:
-        self.entities[net_id] = Player(self)
+        self.entities[net_id] = Player()
     
     def run(self) -> None:
         """Boucle principale du server"""
@@ -141,7 +141,7 @@ class Server:
         return json.dumps(entities_dict)
 
     def end_game(self) -> None:
-        """Fini une partie avant d'en commencé une nouvelle"""
+        """Fini une partie avant d'en commencer une nouvelle"""
         pass
 
 if __name__ == "__main__":
