@@ -60,7 +60,7 @@ class Server:
         return self.next_net_id
 
     def create_player(self, net_id:int) -> None:
-        self.entities[net_id] = Player()
+        self.entities[net_id] = Player(self)
     
     def run(self) -> None:
         """Boucle principale du server"""
@@ -147,7 +147,7 @@ class Server:
 if __name__ == "__main__":
     config = {
         "address": ("127.0.0.1", 9999),
-        "num_player": 1
+        "num_player": 2
     }
     server = Server(config)
     server.run()
