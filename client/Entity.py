@@ -76,7 +76,6 @@ class Entity :
         if (self.countFrame % 16 == 15) : self.countSteps +=1
     
     def animation_fight(self):
-        print(self.countCombat)
         if self.direction == "right":
             self.skin = self.assetCombat.subsurface(pygame.Rect(32*(self.countCombat % 4),0,32,48))
         elif self.direction == "left" : 

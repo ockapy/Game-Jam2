@@ -73,7 +73,7 @@ class Game:
             # l'id réseaux et str(i)
             is_attacking = packet.get(str(i)).get("att")
             if self.entities.get(i) is None:
-                print(self.connection.net_id, i, self.connection.net_id == i)
+                # Création de l'entity selon si c'est une girafe ou non
                 if int(self.connection.net_id) == int(i) and self.isGirafe : 
                     self.entities[i] = Entity("Assets/Characters/BlowThemUp-girafe.png",x, y,"right", "Assets/Characters/BlowThemUp-girafe-attaque.png")
                 else : 
@@ -81,6 +81,7 @@ class Game:
             else:
                 self.entities[i].set_position(x,y)
 
+            # Création et placement de l'animation d'attaque
             w = self.entities[i].get_rect().w
             if self.vfx.get(str(i)) is None : 
                 self.vfx[i] = Vfx("Assets/Characters/BlowThemUp-wind.png", x+w,y, 'right')
@@ -109,6 +110,7 @@ class Game:
                 if pygame.K_j in actions:
                     self.entities.get(str(self.connection.net_id)).set_etat('fight')
                     self.vfx.get(str(self.connection.net_id)).set_visibility(True)
+                # Animation de combat (soufle)
                 if self.entities.get(str(self.connection.net_id)).is_fighting() : 
                     self.entities.get(str(self.connection.net_id)).animation_fight()
                 
@@ -119,6 +121,7 @@ class Game:
         self.currentMap.draw_map(screen,self.serverSize)
         for entity in self.entities.values():
             entity.render(screen,self.serverSize)
+        # Affichage de Vfx uniquement s'il doit etre montrer
         for vfx in self.vfx.values():
             if vfx.is_show():
                 vfx.render(screen, self.serverSize)
