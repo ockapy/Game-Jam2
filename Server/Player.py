@@ -32,6 +32,8 @@ class Player:
         self.__velocity_cap = True
         self.__last_attack_time = time.time()
 
+        self.eliminated = False
+
     def set_action(self, action: dict):
         self.current_action = action
     
@@ -163,6 +165,7 @@ class Player:
         #LA MORT
         if self.position.y >= 800 or abs(self.position.x) >= 900:
             self.__last_attack_time = time.time()
+            self.eliminated = True
 
     
     def serialize(self) -> dict:

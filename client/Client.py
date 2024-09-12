@@ -17,8 +17,8 @@ class ClientClass():
         self.connection = Connection()
         self.game = Game("Map/Arenas")
         self.game.connection = self.connection
-        self.num_connected_player = 0
-        self.max_player = 0
+        self.num_connected_player = -1
+        self.max_player = -1
 
     def get_state(self):
         return self.state

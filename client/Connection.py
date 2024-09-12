@@ -1,4 +1,5 @@
 import socket
+import json
 
 class Connection:
     PING = b"ping"
@@ -13,6 +14,7 @@ class Connection:
         self.is_connected = False
         
         self.server_address = None
+        self.net_id = None
     
     def receive_packets(self) -> list[bytes]:
         incoming_packets = []
@@ -35,14 +37,19 @@ class Connection:
         self.socket.sendto(Connection.PING, self.server_address)
     
     def has_connected(self, packets: list[bytes]) -> bool:
-        if not self.is_connected and Connection.PONG in packets:
+        if not self.is_connected and any(p.decode("utf-8").find(Connection.PONG.decode("utf-8")) != -1 for p in packets):
             self.is_connected = True
+            for p in packets:
+                if p.decode("utf-8").find(Connection.PONG.decode("utf-8")) != -1:
+                    obj = json.loads(p.decode("utf-8"))
+                    self.net_id = obj.get("nid")
+
             print("INFO: Client connected to ", self.server_address)
     
     def get_last_replication_packets(self, packets: list[str]) -> str | None:
         """Donne le un packet de réplication valide (necessaire si d'autre type de packet arrive)"""
         i = 0
-        while i < len(packets) and packets[i] == Connection.PONG.decode("utf-8"):
+        while i < len(packets) and packets[i].find(Connection.PONG.decode("utf-8")):
             i += 1
         
         if i < len(packets):
