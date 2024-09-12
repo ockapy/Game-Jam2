@@ -377,6 +377,7 @@ class UI():
                     self.main_sprites.update(event)
                 case Menu.CONNECTION:
                     self.connection_sprites.update(event)
+                    self.key_update(event)
                 case Menu.SETTINGS:
                     self.settings_sprites.update(event)
                 case Menu.CREDITS:
@@ -384,9 +385,14 @@ class UI():
                 case Menu.CONTROLS:
                     self.controls_sprites.update(event)
                 case Menu.GAME:
+                    self.key_update(event)
                     pass
 
         return True
+    def key_update(self, event):
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                self.client.disconnect_server()
 
     def render_main(self):
         self.main_sprites.draw(self.screen)

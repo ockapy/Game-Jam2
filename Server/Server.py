@@ -35,6 +35,7 @@ BUFFER_SIZE = 1024
 
 PING = b"ping"
 PONG = b"pong"
+DECO = b"disconnect"
 
 
 class ServerState(Enum):
@@ -101,6 +102,8 @@ class Server:
                 player_info["n"] = len(self.client_addr)
                 player_info["m"] = self.NUM_PLAYER
                 self.server_connection.sendto_all_client((json.dumps(player_info)).encode('utf-8'))
+            elif p == DECO:
+                self.remove_client(addr)
         
         if len(self.client_addr) == self.NUM_PLAYER:
             self.state = ServerState.GAME_SETUP
@@ -115,6 +118,11 @@ class Server:
 
             print(f"INFO: New connection from {new_addr} with network id {self.next_net_id}")
             self.server_connection.sendto(PONG, new_addr)
+
+    def remove_client(self, addr):
+        del self.entities[self.client_addr[addr]]
+        del self.client_addr[addr]
+        print("removed client ", addr)
 
     def setup_game(self) -> None:
         """Envoie le paquet pour le début de jeu"""
@@ -144,10 +152,14 @@ class Server:
 
         # Change les actions reçu 
         for data, addr in inc_packet:
-            action_dict = json.loads(data.decode("utf-8"))
-            net_id = self.client_addr.get(addr)
-            if net_id is not None:
-                self.entities[net_id].set_action(action_dict)
+            if data == DECO:
+                self.remove_client(addr)
+            else:
+                content = data.decode("utf-8")
+                action_dict = json.loads(content)
+                net_id = self.client_addr.get(addr)
+                if net_id is not None:
+                    self.entities[net_id].set_action(action_dict)
 
         for e_id in self.entities.keys():
             self.entities[e_id].update(self.delta_time)

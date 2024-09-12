@@ -10,6 +10,8 @@ class ClientState(Enum):
     WAIT_CON= 1
     PLAYING = 2
 
+DECO = "disconnect"
+
 class ClientClass():
     def __init__(self) -> None:
         self.state= ClientState.OFFLINE
@@ -81,9 +83,9 @@ class ClientClass():
             pass
 
     def disconnect_server(self) ->None:
-        if self.state!=ClientState.OFFLINE:
-            pass
-        self.state=ClientState.OFFLINE
+        self.connection.send_message(DECO)
+        print("disconnect")
+        self.state = ClientState.OFFLINE
 
 class loader:
     def loadCsv(csv):
