@@ -74,10 +74,18 @@ class Game:
             is_attacking = packet.get(str(i)).get("att")
             if self.entities.get(i) is None:
                 # Création de l'entity selon si c'est une girafe ou non
+                # Client choisie d'etre une girafe
                 if int(self.connection.net_id) == int(i) and self.isGirafe : 
                     self.entities[i] = Entity("Assets/Characters/BlowThemUp-girafe.png",x, y,"right", "Assets/Characters/BlowThemUp-girafe-attaque.png")
-                else : 
+                # Client choisie d'etre une girafe donc le reste sont des lapins
+                elif int(self.connection.net_id) != int(i) and self.isGirafe : 
                     self.entities[i] = Entity("Assets/Characters/BlowThemUp-player.png",x, y,"right", "Assets/Characters/BlowThemUp-player-attaque.png")
+                # Client choisie d'etre un lapin
+                elif int(self.connection.net_id) == int(i) and not self.isGirafe:
+                    self.entities[i] = Entity("Assets/Characters/BlowThemUp-player.png",x, y,"right", "Assets/Characters/BlowThemUp-player-attaque.png")
+                # Client choisie d'etre un lapin donc le reste sont des girafes
+                elif int(self.connection.net_id) != int(i) and not self.isGirafe:
+                    self.entities[i] = Entity("Assets/Characters/BlowThemUp-girafe.png",x, y,"right", "Assets/Characters/BlowThemUp-girafe-attaque.png")
             else:
                 self.entities[i].set_position(x,y)
 
