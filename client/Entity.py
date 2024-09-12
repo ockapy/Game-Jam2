@@ -1,10 +1,17 @@
 import pygame
+from enum import Enum
+
+class EntityState(Enum):
+    WALK = 0
+    FIGHT = 1
 
 class Entity : 
 
-    def __init__(self , asset, x, y, direction) -> None:
+    def __init__(self , asset, x, y, direction, assetCombat) -> None:
         self.asset = pygame.image.load(asset).convert_alpha()
+        self.assetCombat = pygame.image.load(assetCombat).convert_alpha()
         self.skin = self.asset.subsurface(pygame.Rect(0,0,32,48))
+        self.combat = self.assetCombat.subsurface(pygame.Rect(0,0,32,48))
         self.rect = pygame.Rect(0,0,20,30)
         self.rect.x = x
         self.rect.y = y
@@ -12,6 +19,8 @@ class Entity :
         self.countSteps = 0
         self.countFrame = 0
         self.velocity = 3
+        self.countCombat = 0
+        self.etat = EntityState.WALK
 
     def get_rect(self):
         return self.rect
@@ -63,8 +72,18 @@ class Entity :
         elif self.direction == "left" : 
             self.skin = pygame.transform.flip(self.asset.subsurface(pygame.Rect(32*(self.countSteps % 4),0,32,48)),180,0) 
         self.countFrame += 1 
+        
         if (self.countFrame % 16 == 15) : self.countSteps +=1
-      
+    
+    def animation_fight(self):
+        if self.direction == "right":
+            self.skin = self.assetCombat.subsurface(pygame.Rect(32*(self.countCombat % 4),0,32,48))
+        elif self.direction == "left" : 
+            self.skin = pygame.transform.flip(self.assetCombat.subsurface(pygame.Rect(32*(self.countCombat % 4),0,32,48)),180,0) 
+        
+        if self.countFrame % 8 == 7 : self.countCombat += 1
+        if self.countCombat % 4 == 3 : self.etat = EntityState.WALK 
+        
     
     def render(self, screen,server_size):
 
@@ -82,6 +101,15 @@ class Entity :
         pygame.draw.rect(screen, (255, 0, 0), pygame.Rect(posX,posY,self.rect.w*scaleX,self.rect.h*scaleY), 1)
 
 
+    def set_etat(self, etat): 
+        if etat == 'fight' : self.etat = EntityState.FIGHT
+        else :  self.etat = EntityState.WALK 
+
+    def get_etat(self):
+        return self.etat
+    
+    def is_fighting(self):
+        return self.etat == EntityState.FIGHT
 
     def moveTo(self) : 
         if(self.direction=='right'):
