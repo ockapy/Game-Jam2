@@ -11,7 +11,7 @@ class Player:
     ATTACK_DELAY = 0.5 #seconde
     def __init__(self, server) -> None:
         self.collide_box = pygame.Rect(0, 0, 20, 30)
-        self.position = pygame.Vector2(172,428)        
+        self.position = pygame.Vector2(0, 0)        
         self.velocity = pygame.Vector2(0, 0)
         self.acceleration = pygame.Vector2(0, 0)
         self.current_action = []

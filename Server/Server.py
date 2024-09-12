@@ -125,6 +125,10 @@ class Server:
         
         self.colliders = self.load_map_rects(self.maps[0].data)
 
+        for e in self.entities.keys():
+            self.entities[e].position.x = self.maps[0].spawn_position[e % len(self.maps[0].spawn_position)][0]
+            self.entities[e].position.y = self.maps[0].spawn_position[e % len(self.maps[0].spawn_position)][1]
+
         self.server_connection.sendto_all_client(json.dumps(packet).encode("utf-8"))
         self.state = ServerState.PLAYING
 
@@ -169,6 +173,13 @@ class Server:
             if file.endswith(".tmx"):
                 tmxMap = Map("Map/Arenas/"+directory+"/"+file)
                 tmxMap.name = file.removesuffix(".tmx")
+                with open("Map/Arenas/" + directory + "/spawn_pos.json") as f:
+                    content = f.read()
+                    obj = json.loads(content)
+                    tmxMap.spawn_position = obj.get("position")
+                
+                print(tmxMap.spawn_position)
+
                 self.maps.append(tmxMap)
     
     def load_map_rects(self, tmx_data):

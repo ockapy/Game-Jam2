@@ -6,6 +6,7 @@ class Map :
         self.name = "Unamed"
         self.colliders = []
         self.data = pytmx.load_pygame(path)
+        self.spawn_position: list[tuple[int, int]] = []
 
     
     def draw_map(self,screen) -> None:       
