@@ -345,6 +345,9 @@ class UI():
         self.background=pygame.image.load("./Assets/UI/background1.png").convert()
         self.scaled_background=pygame.transform.scale(self.background,pygame.display.get_window_size())
 
+        self.game_background = pygame.image.load("Assets/Backgrounds/forest_background.png").convert()
+        self.game_background_scaled = pygame.transform.scale(self.game_background, pygame.display.get_window_size())
+
         self.init_main()
         self.init_connection()
         self.init_settings()
@@ -367,6 +370,7 @@ class UI():
 
             if event.type == pygame.VIDEORESIZE:
                 self.scaled_background=pygame.transform.scale(self.background,pygame.display.get_window_size())
+                self.game_background_scaled = pygame.transform.scale(self.game_background, pygame.display.get_window_size())
 
             match self.menu :
                 case Menu.MAIN:
@@ -455,6 +459,7 @@ class UI():
             case Menu.CONTROLS:
                 self.render_controls()
             case Menu.GAME:
+                self.screen.blit(self.game_background_scaled, (0, 0))
                 self.client.game.render(self.screen)
                 pass
 

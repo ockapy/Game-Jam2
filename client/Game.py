@@ -18,8 +18,7 @@ class Game:
 
         self.screen = self.init_screen(1280,960)
         self.maps = self.initMaps(path)
-        self.entities = dict()
-        
+        self.entities = dict()      
         
         
     def init_screen(self, width: int, height: int) -> pygame.Surface:
@@ -79,8 +78,7 @@ class Game:
 
             self.connection.send_message(json.dumps(actions))
             
-    def render(self,screen):
-        screen.fill((0,0,0))
+    def render(self,screen: pygame.Surface):
         self.currentMap.draw_map(screen,self.serverSize)
         for entity in self.entities.values():
             entity.render(screen,self.serverSize)
