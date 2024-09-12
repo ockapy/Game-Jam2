@@ -29,7 +29,8 @@ class Connection:
         return incoming_packets
 
     def send_message(self, message: str) -> None:
-        self.socket.sendto(message.encode("utf-8"), self.server_address)
+        if self.server_address is not None:
+            self.socket.sendto(message.encode("utf-8"), self.server_address)
     
 
     def send_connect(self, server_addr: tuple[str, int]):
