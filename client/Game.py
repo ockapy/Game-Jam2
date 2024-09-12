@@ -18,7 +18,9 @@ class Game:
 
         self.screen = self.init_screen(1280,960)
         self.maps = self.initMaps(path)
-        self.entities = dict()      
+        self.entities = dict()
+        self.isGirafe = False
+      
         
         
     def init_screen(self, width: int, height: int) -> pygame.Surface:
@@ -61,9 +63,14 @@ class Game:
         for i in json.loads(replication_packet).keys():
             packet = json.loads(replication_packet)
             x = packet.get(str(i)).get("pos")[0]
-            y = packet.get(str(i)).get("pos")[1]                
+            y = packet.get(str(i)).get("pos")[1] 
+
+
             if self.entities.get(i) is None:
-                self.entities[i] = Entity("Assets/Characters/BlowThemUp-girafe.png",x, y,"right", "Assets/Characters/BlowThemUp-girafe-attaque.png")
+                if self.connection.net_id == i and self.isGirafe : 
+                    self.entities[i] = Entity("Assets/Characters/BlowThemUp-girafe.png",x, y,"right", "Assets/Characters/BlowThemUp-girafe-attaque.png")
+                else : 
+                    self.entities[i] = Entity("Assets/Characters/BlowThemUp-player.png",x, y,"right", "Assets/Characters/BlowThemUp-player-attaque.png")
             else:
                 self.entities[i].set_position(x,y)
     
@@ -92,6 +99,8 @@ class Game:
         for entity in self.entities.values():
             entity.render(screen,self.serverSize)
 
+    def get_isGirafe(self) -> bool: 
+        return self.isGirafe
 
 
 if __name__ == "__main__":
