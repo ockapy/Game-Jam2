@@ -41,6 +41,7 @@ class Connection:
             self.is_connected = True
             for p in packets:
                 if p.decode("utf-8").find(Connection.PONG.decode("utf-8")) != -1:
+                    print(p)
                     obj = json.loads(p.decode("utf-8"))
                     self.net_id = obj.get("nid")
 

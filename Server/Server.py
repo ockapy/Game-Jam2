@@ -117,7 +117,10 @@ class Server:
             self.create_player(player_net_id)
 
             print(f"INFO: New connection from {new_addr} with network id {self.next_net_id}")
-            self.server_connection.sendto(PONG, new_addr)
+            client_info = dict()
+            client_info[PONG] = ""
+            client_info["nid"] = player_net_id
+            self.server_connection.sendto(json.dumps(client_info).encode("utf-8"), new_addr)
 
     def remove_client(self, addr):
         del self.entities[self.client_addr[addr]]
