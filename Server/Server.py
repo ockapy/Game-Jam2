@@ -46,7 +46,7 @@ class ServerState(Enum):
 
 class Server:
     def __init__(self, config: dict) -> None:
-        print(f"{config=}")
+        print(f"{config=}") 
 
         self.server_connection = ServerConnection(self, (config.get("server_ip"), config.get("server_port")))
 
@@ -167,6 +167,9 @@ class Server:
         for e_id in self.entities.keys():
             self.entities[e_id].update(self.delta_time)
         
+        if self.count_alive_player() == 1:
+            self.state = ServerState.END_GAME
+        
         serialized_entities = self.serialize_entities()
         
         self.server_connection.sendto_all_client(serialized_entities.encode("utf-8"))
@@ -175,14 +178,27 @@ class Server:
         entities_dict = dict()
         
         for e in self.entities.keys():
-            entities_dict[e] = self.entities[e].serialize()
+            entities_dict[e] = self.entities[e].serialize(e)
         pack = dict()
         pack["rep"] = entities_dict
         return json.dumps(pack)
+    
+    def get_last_alive(self):
+        for e in self.entities.keys():
+            if not self.entities[e].eliminated:
+                return e
+    
+    def count_alive_player(self):
+        count = 0
+        for i, j in self.entities.items():
+            if not j.eliminated:
+                count += 1
+        return count
 
     def end_game(self) -> None:
         """Fini une partie avant d'en commencer une nouvelle"""
-        pass
+        last_standing = self.get_last_alive()
+        self.server_connection.sendto_all_client(('{"win":'+str(last_standing)+'}').encode("utf-8"))
 
     def load_maps(self):
         self.maps = list()

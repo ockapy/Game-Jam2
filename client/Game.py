@@ -52,6 +52,10 @@ class Game:
     def handle_packets(self, packets: list[bytes]) -> None:
         decoded_packets = [p.decode("utf-8") for p in packets] 
         self.connection.has_connected(packets)
+
+        for p in decoded_packets:
+            if p.find("win") != -1:
+                print("Number ", json.loads(p).get("win"), " win the game")
         
         repl_packet = self.connection.get_last_replication_packets(decoded_packets)
         print(repl_packet)
@@ -63,8 +67,9 @@ class Game:
         for i in json.loads(replication_packet).keys():
             packet = json.loads(replication_packet)
             x = packet.get(str(i)).get("pos")[0]
-            y = packet.get(str(i)).get("pos")[1] 
-
+            y = packet.get(str(i)).get("pos")[1]
+            # l'id réseaux et str(i)
+            is_attacking = packet.get(str(i)).get("att")
 
             if self.entities.get(i) is None:
                 if self.connection.net_id == i and self.isGirafe : 

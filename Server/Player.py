@@ -49,6 +49,7 @@ class Player:
         self.other_force.append(force)
 
     def update(self, delta_time: float):
+        self.is_attacking = False
 
         # Where am I?
         self.collide_box.x = self.position.x
@@ -115,6 +116,7 @@ class Player:
 
         if pygame.K_j in self.current_action:
             if time.time() - self.__last_attack_time >= Player.ATTACK_DELAY:
+                self.is_attacking = True
                 if self.velocity.magnitude() != 0:
                     self.direction = self.velocity.normalize()
                 else:
@@ -189,5 +191,5 @@ class Player:
         self.collide_box.topleft = self.position.xy
 
     
-    def serialize(self) -> dict:
-        return {"pos": [self.position.x, self.position.y]}
+    def serialize(self, nid) -> dict:
+        return {"pos": [self.position.x, self.position.y], "att": self.is_attacking}
