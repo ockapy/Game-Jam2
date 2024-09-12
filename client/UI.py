@@ -466,4 +466,4 @@ class UI():
         self.over_sprites.draw(self.screen)
         pygame.display.flip()
 
-        self.clock.tick(10) #max x loop per second
+        self.clock.tick(60) #max x loop per second

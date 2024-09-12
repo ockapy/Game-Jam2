@@ -130,6 +130,7 @@ class Server:
             self.entities[e].position.y = self.maps[0].spawn_position[e % len(self.maps[0].spawn_position)][1]
 
         self.server_connection.sendto_all_client(json.dumps(packet).encode("utf-8"))
+        pygame.display.quit()
         self.state = ServerState.PLAYING
 
     def update_game(self) -> None:
@@ -231,7 +232,7 @@ def load_config(path):
     try:
         json_obj = json.loads(content)
     except:
-        print("Impossible de chargé la configuration")
+        print("Impossible de charger la configuration")
         exit(1)
     
     try:
