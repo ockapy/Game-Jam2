@@ -1,5 +1,6 @@
 import pygame
 from enum import Enum
+from Vfx import Vfx
 
 class EntityState(Enum):
     WALK = 0
@@ -21,6 +22,7 @@ class Entity :
         self.velocity = 3
         self.countCombat = 0
         self.etat = EntityState.WALK
+        self.wind = Vfx("Assets/Characters/BlowThemUp-wind.png", self.rect.x, self.rect.y, self.direction)
 
     def get_rect(self):
         return self.rect
@@ -76,13 +78,16 @@ class Entity :
         if (self.countFrame % 16 == 15) : self.countSteps +=1
     
     def animation_fight(self):
+        print(self.countCombat)
         if self.direction == "right":
             self.skin = self.assetCombat.subsurface(pygame.Rect(32*(self.countCombat % 4),0,32,48))
         elif self.direction == "left" : 
             self.skin = pygame.transform.flip(self.assetCombat.subsurface(pygame.Rect(32*(self.countCombat % 4),0,32,48)),180,0) 
         
         if self.countFrame % 8 == 7 : self.countCombat += 1
-        if self.countCombat % 4 == 3 : self.etat = EntityState.WALK 
+        if self.countCombat % 4 == 3 : 
+            self.etat = EntityState.WALK 
+            self.wind.annimation_wind()
         
     
     def render(self, screen,server_size):
@@ -100,6 +105,9 @@ class Entity :
 
         pygame.draw.rect(screen, (255, 0, 0), pygame.Rect(posX,posY,self.rect.w*scaleX,self.rect.h*scaleY), 1)
 
+        if self.wind is not None : 
+            self.wind.render(screen, server_size)
+
 
     def set_etat(self, etat): 
         if etat == 'fight' : self.etat = EntityState.FIGHT
@@ -111,10 +119,4 @@ class Entity :
     def is_fighting(self):
         return self.etat == EntityState.FIGHT
 
-    def moveTo(self) : 
-        if(self.direction=='right'):
-            self.rect.x += self.velocity
-        elif(self.direction=='left'):
-            self.rect.x -= self.velocity
-        self.animation_entity()
 
