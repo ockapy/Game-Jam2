@@ -72,9 +72,9 @@ class Game:
             y = packet.get(str(i)).get("pos")[1]
             # l'id réseaux et str(i)
             is_attacking = packet.get(str(i)).get("att")
-
             if self.entities.get(i) is None:
-                if self.connection.net_id == i and self.isGirafe : 
+                print(self.connection.net_id, i, self.connection.net_id == i)
+                if int(self.connection.net_id) == int(i) and self.isGirafe : 
                     self.entities[i] = Entity("Assets/Characters/BlowThemUp-girafe.png",x, y,"right", "Assets/Characters/BlowThemUp-girafe-attaque.png")
                 else : 
                     self.entities[i] = Entity("Assets/Characters/BlowThemUp-player.png",x, y,"right", "Assets/Characters/BlowThemUp-player-attaque.png")
