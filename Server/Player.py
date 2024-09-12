@@ -16,6 +16,8 @@ class Player:
         self.acceleration = pygame.Vector2(0, 0)
         self.current_action = []
         
+        self.framecounter = 0
+
         self.feet = pygame.Vector2(0,0)
 
         self.can_jump = False
@@ -155,7 +157,7 @@ class Player:
         # Methode de l'integration de verlet https://www.compadre.org/PICUP/resources/Numerical-Integration/
         sum_of_force = (Player.GRAVITY*self.is_falling) \
             + (Player.JUMP_FORCE * self.is_jumping) \
-            + (Player.GROUND_ACCEL * movement_direction) \
+            + ((Player.GROUND_ACCEL) * movement_direction) \
             + sum(self.other_force, pygame.Vector2(0, 0))
         
         print(sum_of_force)
@@ -176,7 +178,20 @@ class Player:
 
             elif self.velocity.x < -Player.MAX_VELOCITY:
                 self.velocity.x = -Player.MAX_VELOCITY
-        
+        else:
+
+            if self.framecounter < 4:
+                self.framecounter += 1
+                if self.velocity.x >= Player.MAX_VELOCITY:
+                    self.velocity.x = Player.MAX_VELOCITY*5
+
+                elif self.velocity.x < -Player.MAX_VELOCITY:
+                    self.velocity.x = -Player.MAX_VELOCITY*5
+            else:
+                self.framecounter = 0
+                self.__velocity_cap = True
+
+
 
         #print("acc: ", self.acceleration, "\tvel", self.velocity)
         
