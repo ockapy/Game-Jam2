@@ -8,6 +8,7 @@ from pytmx.util_pygame import load_pygame
 from Connection import Connection
 from TmxMap import Map
 from Entity import Entity
+from Vfx import Vfx
 
 class Game:
 
@@ -19,6 +20,7 @@ class Game:
         self.screen = self.init_screen(1280,960)
         self.maps = self.initMaps(path)
         self.entities = dict()
+        self.vfx = dict()
         self.isGirafe = False
       
         
@@ -78,6 +80,16 @@ class Game:
                     self.entities[i] = Entity("Assets/Characters/BlowThemUp-player.png",x, y,"right", "Assets/Characters/BlowThemUp-player-attaque.png")
             else:
                 self.entities[i].set_position(x,y)
+
+    def update_vfx(self, replication_packet):
+        for i in json.loads(replication_packet).keys():
+            packet = json.loads(replication_packet)
+            x = packet.get(str(i)).get("pos")[0]
+            y = packet.get(str(i)).get("pos")[1]
+            direction = packet.get(str(i)).get("dir")
+
+            if self.vfx.get(str(i)) is None : 
+                self.vfx[i] = Vfx("Assets/Characters/BlowThemUp-wind.png", x,y, direction)
     
     def get_played_action(self):
         keycodes = [k for k in range(len(pygame.key.get_pressed())) if pygame.key.get_pressed()[k]]
@@ -90,7 +102,6 @@ class Game:
             self.handle_packets(packets)
 
             if self.entities :
-                print(self.connection.net_id)
                 if pygame.K_j in actions:
                     self.entities.get(str(self.connection.net_id)).set_etat('fight')
                 if self.entities.get(str(self.connection.net_id)).is_fighting() : 
@@ -103,6 +114,8 @@ class Game:
         self.currentMap.draw_map(screen,self.serverSize)
         for entity in self.entities.values():
             entity.render(screen,self.serverSize)
+        for vfx in self.vfx.values():
+            vfx.render(screen, self.serverSize)
 
     def get_isGirafe(self) -> bool: 
         return self.isGirafe

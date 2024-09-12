@@ -10,19 +10,29 @@ class Vfx() :
         self.rect.x = x
         self.rect.y = y
         self.direction = direction
-
         self.countFrame = 0
         self.countWind = 0
+
+    def set_position(self, x, y):
+        self.rect.x = x
+        self.rect.y = y
+
+    def add_x(self, x):
+        self.rect.x += x
+
+    def add_y(self, y):
+        self.rect.y += y
+
 
     def annimation_wind(self):
         if self.direction == "right":
             self.skin = self.asset.subsurface(pygame.Rect(48*(self.countWind % 4),0,48,31))
-            self.rect.x += 10
+            self.add_x(10) #TODO : scale par rapport au serv
         elif self.direction == "left" : 
             self.skin = pygame.transform.flip(self.asset.subsurface(pygame.Rect(32*(self.countWind % 4),0,48,31)),180,0) 
-            self.rect.x -= 10
+            self.add_x(-10) #TODO : scale par rapport au serv
         self.countFrame += 1 
-        if (self.countFrame % 16 == 15) : self.countWind +=1
+        if (self.countFrame % 8 == 7) : self.countWind +=1
 
     def render(self, screen, server_size) : 
         scaleX = screen.get_width() / server_size[0]
