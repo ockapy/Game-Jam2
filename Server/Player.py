@@ -134,11 +134,10 @@ class Player:
                     self.attack_rect.right = self.position.x
                 self.attack_rect.y = self.collide_box.y
 
-                push_force = 1 + (time.time() - self.server.game_start) / 30
-                print(f"{push_force=}")
+                push_force = 1 + (time.time() - self.server.game_start) / 45
                 for e in self.server.entities.values():
                     if e is not self and self.attack_rect.colliderect(e.collide_box):
-                        e.push(-self.direction * 7_000 * push_force + pygame.Vector2(0, -1) * 50_000 * push_force)
+                        e.push(-self.direction * 6_000 * push_force + pygame.Vector2(0, -1) * 2_000 * push_force)
                         e.disable_velocity_cap()
 
                 self.__last_attack_time = time.time()
