@@ -272,6 +272,14 @@ class UI():
 
     def get_fps(self):
         return round(self.clock.get_fps())
+    
+    def select_player_skin(self,giraffe):
+        self.client.game.isGirafe=giraffe
+
+    def get_actual_skin(self):
+        if self.client.game.get_isGirafe():
+            return "Selected skin : Giraffe"
+        return "Selected skin : Rabbit"
 
     #init objects to display on the spec. menu
     def init_main(self):
@@ -285,10 +293,14 @@ class UI():
         Label((50,20),(400,40),(255,255,255,0),self.connection_sprites,text="Connect to a server",fontsize=50,font=self.font)
         Button((10,10),(150,60),(255,255,255,0),self.connection_sprites,(self.quit_connect,None),texture="./Assets/UI/arrow1.png",font=self.font)
         #address input
-        self.input["ADDRESS"] = Input((35,50),(260,40),(255,255,255,0),self.connection_sprites,(self.connect_to_serverip,None),"IP Address",texture="./Assets/UI/textinput-off1.png",texture_alt= "./Assets/UI/textinput-on1.png",font=self.font)
-        Button((65,50),(150,40),(255,255,255,0),self.connection_sprites,(self.connect_to_serverip,None),"Connect",texture="./Assets/UI/button1.png",font=self.font)
+        self.input["ADDRESS"] = Input((35,30),(260,40),(255,255,255,0),self.connection_sprites,(self.connect_to_serverip,None),"IP Address",texture="./Assets/UI/textinput-off1.png",texture_alt= "./Assets/UI/textinput-on1.png",font=self.font)
+        Button((65,30),(150,40),(255,255,255,0),self.connection_sprites,(self.connect_to_serverip,None),"Connect",texture="./Assets/UI/button1.png",font=self.font)
 
-        self.startbutton=Button((60,60),(150,40),(255,255,255,0),self.connection_sprites,(self.start_game,None),"Start !",texture="./Assets/UI/button1.png",disable=True,font=self.font)
+        self.startbutton=Button((65,40),(150,40),(255,255,255,0),self.connection_sprites,(self.start_game,None),"Start !",texture="./Assets/UI/button1.png",disable=True,font=self.font)
+        Button((60,60),(40,80),(255,255,255,0),self.connection_sprites,(self.select_player_skin,False),"",texture="./Assets/UI/rabbit1.png",font=self.font)
+        Button((70,60),(40,80),(255,255,255,0),self.connection_sprites,(self.select_player_skin,True),"",texture="./Assets/UI/giraffe1.png",font=self.font)
+        Label((65,75),(250,50),(255,255,255,100),self.connection_sprites,(self.get_actual_skin,None),font=self.font,fontsize=28)
+
 
     def init_settings(self):
         Label((50,50),(550,550),"azure",self.settings_sprites,texture="./Assets/UI/backplate1.png")
@@ -448,7 +460,7 @@ class UI():
 
                 surface.blit(text,((surface.get_width()-text.get_width())/2,(surface.get_height()-text.get_height())/2))
 
-            self.screen.blit(surface,(pygame.display.get_window_size()[0]*0.30,pygame.display.get_window_size()[1]*0.6))
+            self.screen.blit(surface,(pygame.display.get_window_size()[0]*0.30,pygame.display.get_window_size()[1]*0.45))
 
     def render_settings(self):
         self.settings_sprites.draw(self.screen)
