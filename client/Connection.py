@@ -51,7 +51,7 @@ class Connection:
     def get_last_replication_packets(self, packets: list[str]) -> str | None:
         """Donne le un packet de réplication valide (necessaire si d'autre type de packet arrive)"""
         i = 0
-        while i < len(packets) and packets[i].find(Connection.PONG.decode("utf-8")):
+        while i < len(packets) and packets[i].find("rep") == -1:
             i += 1
         
         if i < len(packets):

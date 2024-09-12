@@ -176,8 +176,9 @@ class Server:
         
         for e in self.entities.keys():
             entities_dict[e] = self.entities[e].serialize()
-        
-        return json.dumps(entities_dict)
+        pack = dict()
+        pack["rep"] = entities_dict
+        return json.dumps(pack)
 
     def end_game(self) -> None:
         """Fini une partie avant d'en commencer une nouvelle"""

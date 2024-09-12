@@ -40,7 +40,6 @@ class ClientClass():
 
             packets = self.connection.receive_packets()
 
-
             # Update varié
             match self.state:
                 case ClientState.OFFLINE:

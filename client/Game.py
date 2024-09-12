@@ -52,8 +52,10 @@ class Game:
         self.connection.has_connected(packets)
         
         repl_packet = self.connection.get_last_replication_packets(decoded_packets)
+        print(repl_packet)
         if repl_packet is not None:
-            self.update_entities(repl_packet)
+            packet_data = json.loads(repl_packet).get("rep")
+            self.update_entities(json.dumps(packet_data))
 
     def update_entities(self, replication_packet):
         for i in json.loads(replication_packet).keys():
@@ -76,10 +78,11 @@ class Game:
             self.handle_packets(packets)
 
             if self.entities :
+                print(self.connection.net_id)
                 if pygame.K_j in actions:
-                    self.entities.get(self.connection.net_id).set_etat('fight')
-                if self.entities.get(self.connection.net_id).is_fighting() : 
-                    self.entities.get(self.connection.net_id).animation_fight()
+                    self.entities.get(str(self.connection.net_id)).set_etat('fight')
+                if self.entities.get(str(self.connection.net_id)).is_fighting() : 
+                    self.entities.get(str(self.connection.net_id)).animation_fight()
                 
 
             self.connection.send_message(json.dumps(actions))
