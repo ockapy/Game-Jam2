@@ -118,7 +118,7 @@ class Server:
 
             print(f"INFO: New connection from {new_addr} with network id {self.next_net_id}")
             client_info = dict()
-            client_info[PONG] = ""
+            client_info[PONG.decode("utf-8")] = ""
             client_info["nid"] = player_net_id
             self.server_connection.sendto(json.dumps(client_info).encode("utf-8"), new_addr)
 
