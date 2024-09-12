@@ -61,6 +61,8 @@ class Server:
         self.delta_time = 0
 
         self.colliders = []
+
+        self.game_start = 0
     
     def new_net_id(self) -> int:
         self.next_net_id += 1
@@ -146,6 +148,7 @@ class Server:
 
         self.server_connection.sendto_all_client(json.dumps(packet).encode("utf-8"))
         pygame.display.quit()
+        self.game_start = time()
         self.state = ServerState.PLAYING
 
     def update_game(self) -> None:
