@@ -3,7 +3,7 @@ import time
 
 class Player:
     GRAVITY = pygame.Vector2(0, 1200)
-    JUMP_FORCE = pygame.Vector2(0, -30000)
+    JUMP_FORCE = pygame.Vector2(0, -25000)
     GROUND_ACCEL = 1400
     MAX_VELOCITY = 175
     FRICTION = 200
@@ -16,19 +16,21 @@ class Player:
         self.acceleration = pygame.Vector2(0, 0)
         self.current_action = []
         
-        self.has_jumped = 0
+        self.feet = pygame.Vector2(0,0)
+
+        self.can_jump = False
+        self.is_jumping = False
 
         self.other_force = []
         self.direction = pygame.Vector2(0, 0)
-        self.collide_flag = 0
 
         self.attack_rect = pygame.Rect(0, 0, 50, 50)
 
         self.server = server
 
-        self.can_jump = True
+        self.on_ground = True
+        self.is_falling = 0
 
-        self.__prev_tick_jump = False
         self.__velocity_cap = True
         self.__last_attack_time = time.time()
 
@@ -47,51 +49,69 @@ class Player:
         self.other_force.append(force)
 
     def update(self, delta_time: float):
-        self.collide_box.topleft = self.position.xy
 
-        if not self.can_jump:
-            self.has_jumped = 0
-        
+        # Where am I?
+        self.collide_box.x = self.position.x
+        self.collide_box.y = self.position.y 
 
-        if len(self.server.colliders) > 0:
+        self.feet = ((self.collide_box.x)+20,(self.collide_box.y)+30)
 
-            if any(self.collide_box.colliderect(collision_rect) for collision_rect in self.server.colliders):
-                    self.collide_flag = 0
-                    self.can_jump = True
+        # Do i touch a block?
+
+        if self.is_jumping == False:
+
+            for collider in self.server.colliders:
+                collision = collider.collidepoint(self.feet)
+                print(collision)
+                # If i touched ground I stop falling and gain a jump
+                if collision:
                     self.velocity.y = 0
-                    self.__velocity_cap = True
-            else:
-                self.collide_flag = 1
-        else:
-            self.collide_flag = 0
-            self.velocity.y = 0
-            print("pos = " + str(self.position.xy))
+                    self.can_jump = True
+                    self.is_jumping = False
+                else:
+                    self.is_falling = 1
 
+        else:
+            self.is_jumping = False
             
+
+        # if any(self.collide_box.collidepoint(collision_rect,self.feet) for collision_rect in self.server.colliders):
+        #         self.collide_flag = 0
+        #         self.can_jump = True
+        #         self.velocity.y = 0
+        #         self.__velocity_cap = True
+        # else:
+        #     self.collide_flag = 1
+
+        
+        # Where do I want to move?
         
         movement_direction = pygame.Vector2(0, 0)
         if pygame.K_d in self.current_action or pygame.K_RIGHT in self.current_action:
-            #print("MOVE RIGHT")
+            # I move to the right
             movement_direction.x = 1
+
         if pygame.K_q in self.current_action or pygame.K_LEFT in self.current_action:
-            #print("MOVE LEFT")
+
+            # I move to the left
             movement_direction.x = -1
+
         if pygame.K_z in self.current_action or pygame.K_UP in self.current_action:
-            #print("JUMP")
-
-            if self.can_jump:
-                self.has_jumped= 1
-                self.can_jump = False
+            # I want to jump
+            # Can I?
             
-
-        #     if not self.__prev_tick_jump:
+            if self.is_jumping:
+                self.is_falling = 1
+                self.can_jump = False
                 
-        #         has_jumped = 1
-        #     self.__prev_tick_jump = True
-        # elif len(self.current_action) == 0:
-        #     self.__prev_tick_jump = self.__prev_tick_jump
-        # else:
-        #     self.__prev_tick_jump = False
+                
+
+            # I yes, I jump. If not i stay on ground
+            if self.can_jump:
+                self.is_jumping = True
+                self.is_falling = 0
+                self.can_jump = False
+
 
         if pygame.K_j in self.current_action:
             if time.time() - self.__last_attack_time >= Player.ATTACK_DELAY:
@@ -131,14 +151,13 @@ class Player:
 
 
         # Methode de l'integration de verlet https://www.compadre.org/PICUP/resources/Numerical-Integration/
-        sum_of_force = (Player.GRAVITY*self.collide_flag) \
-            + (Player.JUMP_FORCE * self.has_jumped) \
+        sum_of_force = (Player.GRAVITY*self.is_falling) \
+            + (Player.JUMP_FORCE * self.is_jumping) \
             + (Player.GROUND_ACCEL * movement_direction) \
             + sum(self.other_force, pygame.Vector2(0, 0))
         
-
         print(sum_of_force)
-
+        
         # average_velocity = self.velocity + self.acceleration * delta_time / 2.0
 
         # self.position += average_velocity * delta_time
@@ -166,6 +185,8 @@ class Player:
         if self.position.y >= 800 or abs(self.position.x) >= 900:
             self.__last_attack_time = time.time()
             self.eliminated = True
+
+        self.collide_box.topleft = self.position.xy
 
     
     def serialize(self) -> dict:

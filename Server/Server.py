@@ -30,7 +30,7 @@ from Player import Player
 from ServerConnection import ServerConnection
 from TmxMap import Map
 
-TARGET_TPS = 30
+TARGET_TPS = 60
 BUFFER_SIZE = 1024
 
 PING = b"ping"

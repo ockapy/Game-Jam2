@@ -69,4 +69,3 @@ class Map :
                     self.colliders.append(tileRect)
 
                     screen.blit(scaledTile,(posX,posY))
-                    pygame.draw.rect(screen, (255, 0, 0), tileRect, 1)
