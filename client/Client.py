@@ -10,7 +10,6 @@ class ClientState(Enum):
     WAIT_CON= 1
     PLAYING = 2
 
-
 class ClientClass():
     def __init__(self) -> None:
         self.state= ClientState.OFFLINE
@@ -18,6 +17,8 @@ class ClientClass():
         self.connection = Connection()
         self.game = Game("Map/Arenas")
         self.game.connection = self.connection
+        self.num_connected_player = 0
+        self.max_player = 0
 
     def get_state(self):
         return self.state
@@ -39,6 +40,11 @@ class ClientClass():
                 case ClientState.WAIT_CON:
                     self.connection.has_connected(packets)
                     for packet in packets:
+                        if packet.decode("utf-8").find('{"n":') != -1:
+                            obj = json.loads(packet.decode("utf-8"))
+                            self.num_connected_player = obj.get("n")
+                            self.max_player = obj.get("m")
+                            print(self.num_connected_player, self.max_player)
                         if packet.decode("utf-8").find("map") != -1:
                             print(packet)
                             obj = json.loads(packet.decode("utf-8"))

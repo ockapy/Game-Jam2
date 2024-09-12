@@ -97,6 +97,10 @@ class Server:
         for p, addr in incoming_packets:
             if p == PING:
                 self.add_client(addr)
+                player_info = {}
+                player_info["n"] = len(self.client_addr)
+                player_info["m"] = self.NUM_PLAYER
+                self.server_connection.sendto_all_client((json.dumps(player_info)).encode('utf-8'))
         
         if len(self.client_addr) == self.NUM_PLAYER:
             self.state = ServerState.GAME_SETUP
