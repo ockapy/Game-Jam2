@@ -12,10 +12,27 @@ class Vfx() :
         self.direction = direction
         self.countFrame = 0
         self.countWind = 0
+        self.visibility = False
+
+    def get_w(self):
+        return self.rect.w
+
+    def set_direction(self, direction):
+        self.direction = direction
+
+    def get_direction(self) -> str: 
+        return self.direction
+
+    def set_visibility(self, bool):
+        self.visibility = bool
+
+    def is_show(self):
+        return self.visibility
 
     def set_position(self, x, y):
         self.rect.x = x
         self.rect.y = y
+        self.annimation_wind()
 
     def add_x(self, x):
         self.rect.x += x
@@ -26,13 +43,15 @@ class Vfx() :
 
     def annimation_wind(self):
         if self.direction == "right":
-            self.skin = self.asset.subsurface(pygame.Rect(48*(self.countWind % 4),0,48,31))
-            self.add_x(10) #TODO : scale par rapport au serv
+            self.wind = self.asset.subsurface(pygame.Rect(48*(self.countWind % 4),0,48,31))
         elif self.direction == "left" : 
-            self.skin = pygame.transform.flip(self.asset.subsurface(pygame.Rect(32*(self.countWind % 4),0,48,31)),180,0) 
-            self.add_x(-10) #TODO : scale par rapport au serv
+            self.wind = pygame.transform.flip(self.asset.subsurface(pygame.Rect(48*(self.countWind % 4),0,48,31)),180,0) 
         self.countFrame += 1 
-        if (self.countFrame % 8 == 7) : self.countWind +=1
+        if (self.countFrame % 16 == 15) : self.countWind +=1
+        if self.countWind % 4 == 3 : 
+            self.visibility == False
+            self.countFrame = 0
+            self.countWind = 0
 
     def render(self, screen, server_size) : 
         scaleX = screen.get_width() / server_size[0]
