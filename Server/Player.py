@@ -11,11 +11,12 @@ class Player:
     ATTACK_DELAY = 0.5 #seconde
     def __init__(self, server) -> None:
         self.collide_box = pygame.Rect(0, 0, 20, 30)
-        self.position = pygame.Vector2(0, 0)        
+        self.position = pygame.Vector2(172,406)        
         self.velocity = pygame.Vector2(0, 0)
         self.acceleration = pygame.Vector2(0, 0)
         self.current_action = []
-
+        
+        self.has_jumped = 0
 
         self.other_force = []
         self.direction = pygame.Vector2(0, 0)
@@ -24,6 +25,8 @@ class Player:
         self.attack_rect = pygame.Rect(0, 0, 50, 50)
 
         self.server = server
+
+        self.can_jump = True
 
         self.__prev_tick_jump = False
         self.__velocity_cap = True
@@ -44,14 +47,16 @@ class Player:
     def update(self, delta_time: float):
         self.collide_box.topleft = self.position.xy
 
+        if not self.can_jump:
+            self.has_jumped = 0
+        
+
         if len(self.server.colliders) > 0:
 
             if any(self.collide_box.colliderect(collision_rect) for collision_rect in self.server.colliders):
                     self.collide_flag = 0
-                    print("collide")
+                    self.can_jump = True
                     self.velocity.y = 0
-                    print("pos = " + str(self.position.xy))
-
                     self.__velocity_cap = True
             else:
                 self.collide_flag = 1
@@ -61,7 +66,7 @@ class Player:
             print("pos = " + str(self.position.xy))
 
             
-        has_jumped = 0
+        
         movement_direction = pygame.Vector2(0, 0)
         if pygame.K_d in self.current_action or pygame.K_RIGHT in self.current_action:
             #print("MOVE RIGHT")
@@ -71,13 +76,20 @@ class Player:
             movement_direction.x = -1
         if pygame.K_z in self.current_action or pygame.K_UP in self.current_action:
             #print("JUMP")
-            if not self.__prev_tick_jump:
-                has_jumped = 1
-            self.__prev_tick_jump = True
-        elif len(self.current_action) == 0:
-            self.__prev_tick_jump = self.__prev_tick_jump
-        else:
-            self.__prev_tick_jump = False
+
+            if self.can_jump:
+                self.has_jumped= 1
+                self.can_jump = False
+            
+
+        #     if not self.__prev_tick_jump:
+                
+        #         has_jumped = 1
+        #     self.__prev_tick_jump = True
+        # elif len(self.current_action) == 0:
+        #     self.__prev_tick_jump = self.__prev_tick_jump
+        # else:
+        #     self.__prev_tick_jump = False
 
         if pygame.K_j in self.current_action:
             if time.time() - self.__last_attack_time >= Player.ATTACK_DELAY:
@@ -88,6 +100,7 @@ class Player:
                 
                 # déplacement de la box de collision devant le joueur
                 # la velocité marche a l'envers du sens pensé (vel > 0 vers la gauche et inversement)
+
                 if self.velocity.x < 0:
                     self.attack_rect.left = self.collide_box.right
                 elif self.velocity.x > 0:
@@ -117,7 +130,7 @@ class Player:
 
         # Methode de l'integration de verlet https://www.compadre.org/PICUP/resources/Numerical-Integration/
         sum_of_force = (Player.GRAVITY*self.collide_flag) \
-            + (Player.JUMP_FORCE * has_jumped) \
+            + (Player.JUMP_FORCE * self.has_jumped) \
             + (Player.GROUND_ACCEL * movement_direction) \
             + sum(self.other_force, pygame.Vector2(0, 0))
         
