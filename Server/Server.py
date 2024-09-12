@@ -125,9 +125,10 @@ class Server:
             self.server_connection.sendto(json.dumps(client_info).encode("utf-8"), new_addr)
 
     def remove_client(self, addr):
-        del self.entities[self.client_addr[addr]]
-        del self.client_addr[addr]
-        print("removed client ", addr)
+        if self.client_addr.get(addr) != None:
+            del self.entities[self.client_addr.get(addr)]
+            del self.client_addr[addr]
+            print("removed client ", addr)
 
     def setup_game(self) -> None:
         """Envoie le paquet pour le début de jeu"""
@@ -162,7 +163,10 @@ class Server:
                 self.remove_client(addr)
             else:
                 content = data.decode("utf-8")
-                action_dict = json.loads(content)
+                try:
+                    action_dict = json.loads(content)
+                except:
+                    continue
                 net_id = self.client_addr.get(addr)
                 if net_id is not None:
                     self.entities[net_id].set_action(action_dict)
