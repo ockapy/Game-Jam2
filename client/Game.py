@@ -75,12 +75,11 @@ class Game:
             
             self.handle_packets(packets)
 
-            # TODO : Changer get('1') par get() de l'id du client dans la liste
             if self.entities :
                 if pygame.K_j in actions:
-                    self.entities.get('1').set_etat('fight')
-                if self.entities.get('1').is_fighting() : 
-                    self.entities.get('1').animation_fight()
+                    self.entities.get(self.connection.net_id).set_etat('fight')
+                if self.entities.get(self.connection.net_id).is_fighting() : 
+                    self.entities.get(self.connection.net_id).animation_fight()
                 
 
             self.connection.send_message(json.dumps(actions))
