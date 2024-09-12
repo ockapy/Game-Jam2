@@ -40,37 +40,44 @@ class Label(pygame.sprite.Sprite):
             self.texture.fill(color)
 
         self.rect=self.texture.get_rect()
-
         self.font=pygame.font.Font(font, fontsize)
-        text_render=self.font.render(self.text,False,self.textcolor)
-        self.image=self.texture.copy()
-        self.image.blit(text_render,((self.rect.w-text_render.get_width() )/2,(self.rect.h-text_render.get_height() )/2))
+        if not self.hidden :
+            
+            text_render=self.font.render(self.text,False,self.textcolor)
+            self.image=self.texture.copy()
+            self.image.blit(text_render,((self.rect.w-text_render.get_width() )/2,(self.rect.h-text_render.get_height() )/2))
 
+        else:
+            self.image=pygame.surface.Surface((0,0))
+        
         ws=pygame.display.get_window_size()
         self.rect.topleft=( (ws[0] *self.pos[0]/100 ) - self.rect.width/2,(ws[1] *self.pos[1]/100 ) - self.rect.height/2)
 
     def update(self,event) -> None:
 
-        if self.cb_input!=None:
-            if self.cb_input_arg!=None:
-                self.text=str(self.cb_input(self.cb_input_arg))
-            else:
-                self.text=str(self.cb_input())
-            
-            
-
-
-
         text_render=self.font.render(self.text,False,self.textcolor)
 
-        self.image=self.texture.copy()
-        self.image.blit(text_render,((self.rect.w-text_render.get_width() )/2,(self.rect.h-text_render.get_height() )/2))
+        if not self.hidden:
+            if self.cb_input!=None:
+                if self.cb_input_arg!=None:
+                    self.text=str(self.cb_input(self.cb_input_arg))
+                else:
+                    self.text=str(self.cb_input())
+
+            self.image=self.texture.copy()
+            self.image.blit(text_render,((self.rect.w-text_render.get_width() )/2,(self.rect.h-text_render.get_height() )/2))
+
+        else:
+            self.image=pygame.surface.Surface((0,0))
 
         #if event.type ==pygame.VIDEORESIZE:
             #position
         ws=pygame.display.get_window_size()
         self.rect.topleft=( (ws[0] *self.pos[0]/100 ) - self.rect.width/2,(ws[1] *self.pos[1]/100 ) - self.rect.height/2)
 
+    def set_hide(self,hide):
+        self.hidden=hide
+        print(hide)
 
 class Button(Label):
     def __init__(self,pos,dim,color,group,callback,text="",fontsize=32,textcolor="black" ,texture=None ,disable=False,font=None) -> None:
@@ -269,7 +276,7 @@ class UI():
         Label((50,20),(500,80),(255,255,255,0),self.main_sprites,text="WindBlows",fontsize=80,font=self.font)
         Button((50,40),(150,40),(255,255,255,0),self.main_sprites,(self.set_menu,Menu.CONNECTION),"Play !",32,"yellow","./Assets/UI/button1.png",font=self.font)
         Button((50,50),(150,40),(255,255,255,0),self.main_sprites,(self.set_menu,Menu.SETTINGS),"Settings",32,"yellow","./Assets/UI/button1.png",font=self.font)
-        Button((50,60),(150,40),(255,255,255,0),self.main_sprites,(self.set_menu,Menu.CONTROLS),"Controls",32,"yellow","./Assets/UI/button1.png",font=self.font)        
+        Button((50,60),(150,40),(255,255,255,0),self.main_sprites,(self.set_menu,Menu.CONTROLS),"Controls",32,"yellow","./Assets/UI/button1.png",font=self.font)
         Button((50,70),(150,40),(255,255,255,0),self.main_sprites,(self.set_menu,Menu.CREDITS),"Credits",32,"yellow","./Assets/UI/button1.png",font=self.font)
 
     def init_connection(self):
@@ -318,6 +325,8 @@ class UI():
 
     def init_over(self):
         Label((90,10),(70,50),(255,255,255,200),self.over_sprites,(self.get_fps,None),font=self.font)
+        # self.timer_image=Label((50,8),(50,50),(255,255,255,200),self.over_sprites,None,texture="./Assets/UI/clock1.png",hidden=True)
+        # self.timer_value=Label((50,15),(70,50),(255,255,255,200),self.over_sprites,None,font=self.font,hidden=True)
 
 
     def __init__(self, client ) -> None:
