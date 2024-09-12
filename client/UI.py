@@ -281,6 +281,11 @@ class UI():
             return "Selected skin : Giraffe"
         return "Selected skin : Rabbit"
 
+    def get_result(self):
+        if self.client.game.is_win:
+            return "Victory !"
+        return "Defeat..."
+
     #init objects to display on the spec. menu
     def init_main(self):
         Label((50,20),(500,80),(255,255,255,0),self.main_sprites,text="WindBlows",fontsize=80,font=self.font)
@@ -293,10 +298,9 @@ class UI():
         Label((50,20),(400,40),(255,255,255,0),self.connection_sprites,text="Connect to a server",fontsize=50,font=self.font)
         Button((10,10),(150,60),(255,255,255,0),self.connection_sprites,(self.quit_connect,None),texture="./Assets/UI/arrow1.png",font=self.font)
         #address input
-        self.input["ADDRESS"] = Input((35,30),(260,40),(255,255,255,0),self.connection_sprites,(self.connect_to_serverip,None),"IP Address",texture="./Assets/UI/textinput-off1.png",texture_alt= "./Assets/UI/textinput-on1.png",font=self.font)
-        Button((65,30),(150,40),(255,255,255,0),self.connection_sprites,(self.connect_to_serverip,None),"Connect",texture="./Assets/UI/button1.png",font=self.font)
+        self.input["ADDRESS"] = Input((35,40),(260,40),(255,255,255,0),self.connection_sprites,(self.connect_to_serverip,None),"IP Address",texture="./Assets/UI/textinput-off1.png",texture_alt= "./Assets/UI/textinput-on1.png",font=self.font)
+        Button((65,40),(150,40),(255,255,255,0),self.connection_sprites,(self.connect_to_serverip,None),"Connect",texture="./Assets/UI/button1.png",font=self.font)
 
-        self.startbutton=Button((65,40),(150,40),(255,255,255,0),self.connection_sprites,(self.start_game,None),"Start !",texture="./Assets/UI/button1.png",disable=True,font=self.font)
         Button((60,60),(40,80),(255,255,255,0),self.connection_sprites,(self.select_player_skin,False),"",texture="./Assets/UI/rabbit1.png",font=self.font)
         Button((70,60),(40,80),(255,255,255,0),self.connection_sprites,(self.select_player_skin,True),"",texture="./Assets/UI/giraffe1.png",font=self.font)
         Label((65,75),(250,50),(255,255,255,100),self.connection_sprites,(self.get_actual_skin,None),font=self.font,fontsize=28)
@@ -341,7 +345,8 @@ class UI():
         Label((90,10),(70,50),(255,255,255,200),self.over_sprites,(self.get_fps,None),font=self.font)
         # self.timer_image=Label((50,8),(50,50),(255,255,255,200),self.over_sprites,None,texture="./Assets/UI/clock1.png",hidden=True)
         # self.timer_value=Label((50,15),(70,50),(255,255,255,200),self.over_sprites,None,font=self.font,hidden=True)
-
+        self.result=Label((50,40),(600,400),(255,255,255,200),self.over_sprites,(self.get_result,None),texture="./Assets/UI/backplate1.png",fontsize=80,font=self.font,hidden=True)
+        self.result_info=Label((50,60),(400,100),(255,255,255,0),self.over_sprites,None,"Press 'Escape' to continue",fontsize=30,font=self.font,hidden=True)
 
     def __init__(self, client ) -> None:
 
@@ -415,6 +420,9 @@ class UI():
     def key_update(self, event):
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
+                self.result_info.set_hide(True)
+                self.result.set_hide(True)
+                self.menu=Menu.CONNECTION
                 self.client.disconnect_server()
 
     def render_main(self):
@@ -424,29 +432,19 @@ class UI():
         self.connection_sprites.draw(self.screen)
 
         if self.client.get_state() == Client.ClientState.WAIT_CON:
-            surface=pygame.Surface((150,40*4+4))
+            surface=pygame.Surface((150,150))
             surface.fill("grey")
             if self.client.is_connected():
-                self.startbutton.enable(True)
-            #display the player list  !PROTOTYPE!
+            #display players slots
 
-                #players = self.client.getplayers()
-                players= ["joueur 1 ", "joueur 2","joueur 3"]  #line for test purpose only
+                player ="Players : "+str(self.client.get_connected_player())+"/"+str(self.client.get_max_player())
+                surface.fill("white")
+                font=pygame.font.Font(self.font, 25) # font option (todo : set global setting)
 
-                y=0
-                for player in players:
-                    srfce=pygame.Surface((150,40))
-                    srfce.fill("white")
-                    font=pygame.font.Font(None, 25) # font option (todo : set global setting)
-
-                    text=font.render(player,False,"black")
-
-                    srfce.blit(text,((srfce.get_height()-text.get_height())/2,(srfce.get_height()-text.get_height())/2))
-
-                    surface.blit(srfce,(0,y))
-                    y+=40
+                text=font.render(player,False,"black")
 
             else:
+                #display loading 
                 font=pygame.font.Font(None, 40) # font option (todo : set global setting)
 
                 if (pygame.time.get_ticks()%1000 < 250 ):
@@ -458,7 +456,7 @@ class UI():
                 else:
                     text=font.render("|",False,"black")
 
-                surface.blit(text,((surface.get_width()-text.get_width())/2,(surface.get_height()-text.get_height())/2))
+            surface.blit(text,((surface.get_width()-text.get_width())/2,(surface.get_height()-text.get_height())/2))
 
             self.screen.blit(surface,(pygame.display.get_window_size()[0]*0.30,pygame.display.get_window_size()[1]*0.45))
 

@@ -6,17 +6,18 @@ from os import walk
 from pygame.locals import *
 from pytmx.util_pygame import load_pygame
 from Connection import Connection
+import Client
 from TmxMap import Map
 from Entity import Entity
 from Vfx import Vfx
 
 class Game:
 
-    def __init__(self,path) -> None:
+    def __init__(self,path,client) -> None:
         pygame.init()
 
         self.connection = None
-
+        self.client=client
         self.screen = self.init_screen(1280,960)
         self.maps = self.initMaps(path)
         self.entities = dict()
@@ -58,7 +59,8 @@ class Game:
         for p in decoded_packets:
             if p.find("win") != -1:
                 print("Number ", json.loads(p).get("win"), " win the game")
-        
+                self.is_win=(json.loads(p).get("win")==self.connection.net_id)
+                self.client.game_over()
         repl_packet = self.connection.get_last_replication_packets(decoded_packets)
         #print(repl_packet)
         if repl_packet is not None:

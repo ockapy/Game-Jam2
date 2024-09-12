@@ -17,7 +17,7 @@ class ClientClass():
         self.state= ClientState.OFFLINE
         self.ui=UI.UI(self)
         self.connection = Connection()
-        self.game = Game("Map/Arenas")
+        self.game = Game("Map/Arenas",self)
         self.game.connection = self.connection
         self.num_connected_player = -1
         self.max_player = -1
@@ -68,9 +68,10 @@ class ClientClass():
             running=self.ui.handle_event()
             self.ui.render()
     
-    def start_game(self):
-        self.state=ClientState.PLAYING
-        pass
+
+    def game_over(self):
+        self.ui.result.set_hide(False)
+        self.ui.result_info.set_hide(False)
 
     def connect_server(self,addr : str) ->None: 
         try:
@@ -83,6 +84,7 @@ class ClientClass():
 
     def disconnect_server(self) ->None:
         self.connection.send_message(DECO)
+        self.connection.is_connected=False
         print("disconnect")
         self.state = ClientState.OFFLINE
 
