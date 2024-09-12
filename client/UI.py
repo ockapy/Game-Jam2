@@ -1,6 +1,6 @@
 from enum import Enum
 import pygame
-
+import random
 import Client
 
 SCREEN_HEIGHT = 720
@@ -183,15 +183,16 @@ class Audio_Manager():
         self.sound_volume=1.0
         self.music_volume=1.0
         self.mute=False
+        self.sounds={}
+        self.music={}
 
-        # self.sounds_list=Client.loader.loadCsv('./sounds/list.txt')
-        # self.music_list=Client.loader.loadCsv('./music/list.txt')
-        # self.sounds =dict()
-        # for i in range(len(KEY_SET)):  # charge les sons
-        # try:
-        #     self.sounds[KEY_SET[i] ] = pygame.mixer.Sound('./sounds/' + self.sounds_list[0][i])
-        # except:
-        #     pass
+        sounds_list=Client.loader.loadCsv('./Assets/Audios/Sounds/list.csv')
+        for sound in sounds_list[1:] :
+            self.sounds[ sound[0]]=pygame.mixer.Sound('./Assets/Audios/Sounds/'+sound[1])
+
+        music_list=Client.loader.loadCsv('./Assets/Audios/Musics/list.csv')
+        for music in music_list[1:]:
+            self.music[music[0]]=music[1]
 
     def get_sound_volume(self,rounded=False):
         if not rounded:
@@ -201,19 +202,20 @@ class Audio_Manager():
     def set_sound_volume(self,volume):
         if volume >=0 and volume<=1:
             self.sound_volume=volume
-            pygame.mixer.music.set_volume(self.music_volume)
 
     def increase_sound_volume(self):
         self.set_sound_volume(self.sound_volume+0.1)
+        self.play_sound("volume")
 
     def decrease_sound_volume(self):
         self.set_sound_volume(self.sound_volume-0.1)
+        self.play_sound("volume")
 
     def play_sound(self,id):
-        pass
+        pygame.mixer.Sound(self.sounds[id]).play().set_volume(self.sound_volume)
 
-    def stop_sound(self,id):    
-        pass
+    def stop_sound(self,id):
+        pygame.mixer.Sound(self.sounds[id]).stop()
 
     def get_music_volume(self,rounded=False):
         if not rounded:
@@ -232,23 +234,23 @@ class Audio_Manager():
         self.set_music_volume(self.music_volume-0.1)
 
     def play_music(self,id):
-        pass
+        if id in self.music.keys() :
+            pygame.mixer.music.load("./Assets/Audios/Musics/"+self.music[id])
+            pygame.mixer.music.play()
+            pygame.mixer.music.set_volume(self.music_volume)
 
     def play_random_music(self):
-        pass
-
-    def proto_play_music(self,src="./Assets/Audios/Musics/Vivaldi_4Seasons_ Spring.mp3"):
-
-        pygame.mixer.music.load(src)
-        pygame.mixer.music.play()
-        pygame.mixer.music.set_volume(self.music_volume)
-        pass
+            if len(self.music)!=0 :
+                pygame.mixer.music.load("./Assets/Audios/Musics/"+random.choice(list(self.music.values())))
+                pygame.mixer.music.play()
+                pygame.mixer.music.set_volume(self.music_volume)
 
     def stop_music(self,id):
-        pass
+        pygame.mixer.music.stop()
+        pygame.mixer.music.unload()
     
     def queue_music(self,id):
-        pass
+        pygame.mixer.music.queue("./Assets/Audios/Musics/"+self.music[id])
 
 class UI():
 
@@ -364,7 +366,7 @@ class UI():
         self.init_credits()
         self.init_over()
 
-        #self.audio_manager.proto_play_music()
+        self.audio_manager.play_random_music()
 
 
     def handle_event(self) -> bool :
