@@ -26,10 +26,14 @@ class Player:
         self.server = server
 
         self.__prev_tick_jump = False
+        self.__velocity_cap = True
         self.__last_attack_time = time.time()
 
     def set_action(self, action: dict):
         self.current_action = action
+    
+    def disable_velocity_cap(self):
+        self.__velocity_cap = False
 
     def __reset_action(self):
         self.current_action = []
@@ -47,6 +51,8 @@ class Player:
                     print("collide")
                     self.velocity.y = 0
                     print("pos = " + str(self.position.xy))
+
+                    self.__velocity_cap = True
             else:
                 self.collide_flag = 1
         else:
@@ -93,6 +99,7 @@ class Player:
                 for e in self.server.entities.values():
                     if e is not self and self.attack_rect.colliderect(e.collide_box):
                         e.push(-self.direction * 10_000 + pygame.Vector2(0, -1) * 50_000)
+                        e.disable_velocity_cap()
 
                 self.__last_attack_time = time.time()
             
@@ -127,11 +134,12 @@ class Player:
         self.position += self.velocity * delta_time
         self.velocity += self.acceleration * delta_time
 
-        if self.velocity.x >= Player.MAX_VELOCITY:
-            self.velocity.x = Player.MAX_VELOCITY
+        if self.__velocity_cap:
+            if self.velocity.x >= Player.MAX_VELOCITY:
+                self.velocity.x = Player.MAX_VELOCITY
 
-        elif self.velocity.x < -Player.MAX_VELOCITY:
-            self.velocity.x = -Player.MAX_VELOCITY
+            elif self.velocity.x < -Player.MAX_VELOCITY:
+                self.velocity.x = -Player.MAX_VELOCITY
         
 
         #print("acc: ", self.acceleration, "\tvel", self.velocity)
