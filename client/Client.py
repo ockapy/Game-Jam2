@@ -22,6 +22,12 @@ class ClientClass():
 
     def get_state(self):
         return self.state
+
+    def get_max_player(self):
+        return self.max_player
+
+    def get_connected_player(self):
+        return self.num_connected_player
     
     def is_connected(self):
         return self.connection.is_connected
