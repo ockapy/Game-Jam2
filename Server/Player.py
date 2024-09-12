@@ -149,7 +149,7 @@ class Player:
 
         #LA MORT
         if self.position.y >= 800 or abs(self.position.x) >= 900:
-            pass
+            self.__last_attack_time = time.time()
 
     
     def serialize(self) -> dict:
