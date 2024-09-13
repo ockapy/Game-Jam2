@@ -8,7 +8,7 @@ class Player:
     MAX_VELOCITY = 175
     FRICTION = 200
 
-    ATTACK_DELAY = 0.5 #seconde
+    ATTACK_DELAY = 0.3 #seconde
     def __init__(self, server) -> None:
         self.collide_box = pygame.Rect(0, 0, 20, 30)
         self.position = pygame.Vector2(172,406)        

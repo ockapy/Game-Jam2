@@ -206,6 +206,10 @@ class Server:
         """Fini une partie avant d'en commencer une nouvelle"""
         last_standing = self.get_last_alive()
         self.server_connection.sendto_all_client(('{"win":'+str(last_standing)+'}').encode("utf-8"))
+        self.client_addr = dict()
+        self.entities = dict()
+        self.game_start = time()
+        self.state = ServerState.WAIT_CON
 
     def load_maps(self):
         self.maps = list()
