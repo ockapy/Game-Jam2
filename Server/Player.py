@@ -30,6 +30,8 @@ class Player:
 
         self.server = server
 
+        self.push_force = 0
+
         self.on_ground = True
         self.is_falling = 0
 
@@ -134,10 +136,11 @@ class Player:
                     self.attack_rect.right = self.position.x
                 self.attack_rect.y = self.collide_box.y
 
-                push_force = 1 + (time.time() - self.server.game_start) / 45
+                self.push_force = 1 + (time.time() - self.server.game_start) / 7
+                print(self.push_force)
                 for e in self.server.entities.values():
                     if e is not self and self.attack_rect.colliderect(e.collide_box):
-                        e.push(-self.direction * 6_000 * push_force + pygame.Vector2(0, -1) * 2_000 * push_force)
+                        e.push(-self.direction * 6_000 * self.push_force + pygame.Vector2(0, -1) * 2_000 * self.push_force)
                         e.disable_velocity_cap()
 
                 self.__last_attack_time = time.time()
@@ -180,13 +183,13 @@ class Player:
                 self.velocity.x = -Player.MAX_VELOCITY
         else:
 
-            if self.framecounter < 4:
+            if self.framecounter < 7:
                 self.framecounter += 1
                 if self.velocity.x >= Player.MAX_VELOCITY:
-                    self.velocity.x = Player.MAX_VELOCITY*5
+                    self.velocity.x = Player.MAX_VELOCITY*(self.push_force)
 
                 elif self.velocity.x < -Player.MAX_VELOCITY:
-                    self.velocity.x = -Player.MAX_VELOCITY*5
+                    self.velocity.x = -Player.MAX_VELOCITY*(self.push_force)
             else:
                 self.framecounter = 0
                 self.__velocity_cap = True
