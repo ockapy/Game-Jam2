@@ -64,5 +64,4 @@ class Vfx() :
 
         screen.blit(wind, (posX,posY))
 
-        pygame.draw.rect(screen, (255, 0, 0), pygame.Rect(posX,posY,self.rect.w*scaleX,self.rect.h*scaleY), 1)
 
