@@ -136,7 +136,7 @@ class Player:
                     self.attack_rect.right = self.position.x
                 self.attack_rect.y = self.collide_box.y
 
-                self.push_force = 1 + (time.time() - self.server.game_start) / 25
+                self.push_force = 1 + (time.time() - self.server.game_start) / 7
                 print(self.push_force)
                 for e in self.server.entities.values():
                     if e is not self and self.attack_rect.colliderect(e.collide_box):
@@ -183,7 +183,7 @@ class Player:
                 self.velocity.x = -Player.MAX_VELOCITY
         else:
 
-            if self.framecounter < 4:
+            if self.framecounter < 7:
                 self.framecounter += 1
                 if self.velocity.x >= Player.MAX_VELOCITY:
                     self.velocity.x = Player.MAX_VELOCITY*(self.push_force)
