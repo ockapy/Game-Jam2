@@ -209,6 +209,7 @@ class Server:
         self.client_addr = dict()
         self.entities = dict()
         self.game_start = time()
+        self.next_net_id = 0
         self.state = ServerState.WAIT_CON
 
     def load_maps(self):
