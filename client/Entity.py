@@ -98,7 +98,6 @@ class Entity :
 
         screen.blit(skin, (posX,posY))
 
-        pygame.draw.rect(screen, (255, 0, 0), pygame.Rect(posX,posY,self.rect.w*scaleX,self.rect.h*scaleY), 1)
 
 
     def set_etat(self, etat): 
