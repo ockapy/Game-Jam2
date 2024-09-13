@@ -7,6 +7,7 @@ class Map :
         self.colliders = []
         self.data = pytmx.load_pygame(path)
         self.spawn_position: list[tuple[int, int]] = []
+        self.ballon = pygame.transform.scale2x(pygame.transform.scale2x(pygame.image.load("Assets/Backgrounds/BlowThemUp-ballon.png").convert_alpha()))
 
     
     def draw_map(self,screen) -> None:       
@@ -69,3 +70,5 @@ class Map :
                     self.colliders.append(tileRect)
 
                     screen.blit(scaledTile,(posX,posY))
+        for i in range(5):
+            screen.blit(self.ballon, (i * self.ballon.get_width(), screen.get_height()-60))
