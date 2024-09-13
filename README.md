@@ -1,5 +1,26 @@
 # Game-Jam2
 BUT3 Game-Jam
+## Lancement du server
+Lancer le script de setup
+```bash
+./setup.sh
+```
+Lancer le server avec le script.
+```bash
+./start_server.sh
+```
+## Lancement du client
+Lancer le script de setup
+```bash
+./setup.sh
+```
+Lancer le client avec le script
+```bash
+./start_client.sh
+```
+
+## Configuration du server
+Le server doit etre configuré avec l'address ip et le port voulant être utilisé. La configuration ce trouve dans le fichier "Config/server.json"
 
 ## Develop branch
 A chaque tache -> créer une issue.  
