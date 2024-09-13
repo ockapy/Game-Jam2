@@ -332,14 +332,20 @@ class UI():
         Label((50,41),(400,45),(255,255,255,0),self.credits_sprites,text="Graphic Designs by",fontsize=40,font=self.font)
         Label((50,46),(400,50),(255,255,255,0),self.credits_sprites,text="Romain, Gabin & Noe",fontsize=32,font=self.font)
         Label((50,52),(400,45),(255,255,255,0),self.credits_sprites,text="Sound Designs by",fontsize=40,font=self.font)
-        Label((50,57),(400,50),(255,255,255,0),self.credits_sprites,text="Clement",fontsize=32,font=self.font)
+        Label((50,57),(400,50),(255,255,255,0),self.credits_sprites,text="Noe & Clement",fontsize=32,font=self.font)
         Label((50,63),(400,45),(255,255,255,0),self.credits_sprites,text="Extras",fontsize=40,font=self.font)
         Label((50,68),(400,50),(255,255,255,0),self.credits_sprites,text="Font (m6x11) by Daniel Linssen",fontsize=32,font=self.font)
 
     def init_controls(self):
+        Label((50,50),(550,550),(255,255,255,100),self.controls_sprites,texture="./Assets/UI/backplate1.png")
         Label((50,20),(170,40),(255,255,255,0),self.controls_sprites,text="Controls",fontsize=50,font=self.font)
         Button((10,10),(150,60),(255,255,255,0),self.controls_sprites,(self.set_menu,Menu.MAIN),texture="./Assets/UI/arrow1.png",font=self.font)
-        Label((50,60),(300,200),(255,255,255,100),self.controls_sprites,texture=None)
+        Label((50,30),(500,40),(255,255,255,0),self.controls_sprites,text=" 'z' : Jump",fontsize=32,font=self.font)
+        Label((50,40),(500,40),(255,255,255,0),self.controls_sprites,text=" 'q' : Left",fontsize=32,font=self.font)
+        Label((50,50),(500,40),(255,255,255,0),self.controls_sprites,text=" 'd' : Right",fontsize=32,font=self.font)
+        Label((50,60),(500,40),(255,255,255,0),self.controls_sprites,text=" 'j' : Blow",fontsize=32,font=self.font)
+
+
 
     def init_over(self):
         Label((90,10),(70,50),(255,255,255,200),self.over_sprites,(self.get_fps,None),font=self.font)
