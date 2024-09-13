@@ -242,7 +242,7 @@ class Audio_Manager():
     def play_random_music(self):
             if len(self.music)!=0 :
                 pygame.mixer.music.load("./Assets/Audios/Musics/"+random.choice(list(self.music.values())))
-                pygame.mixer.music.play()
+                pygame.mixer.music.play(-1)
                 pygame.mixer.music.set_volume(self.music_volume)
 
     def stop_music(self,id):
